@@ -6,7 +6,7 @@
  * Author:            Ask Adam
  * Text Domain:       ask-adam-lite
  * Requires at least: 5.8
- * Tested up to:      6.7
+ * Tested up to:      6.8
  * Requires PHP:      7.4
  * License:           GPLv2 or later
  */
