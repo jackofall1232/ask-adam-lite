@@ -46,6 +46,10 @@ Yes. Lite is a standalone product. It gives you a working chat widget and a smal
 Pro adds advanced features like multiple providers, real-time search, profiles, and theme controls.  
 You can learn more at [askadamit.com](https://www.askadamit.com).
 
+= How do I remove my API key? =
+Just clear the API key field in the Assistant tab and click "Save Settings."  
+This will erase the stored key from your site.
+
 == Screenshots ==
 
 1. Floating chat widget on a WordPress site
