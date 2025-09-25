@@ -248,8 +248,12 @@ class Ask_Adam_Lite_Admin {
                 <div>
                   <label class="anna-label"><?php esc_html_e('Enable', 'ask-adam-lite'); ?></label>
                   <select class="anna-select" name="enabled">
-                    <option value="1" <?php selected((int)$w['enabled'], 1); ?>><?php esc_html_e('On', 'ask-adam-lite'); ?></option>
-                    <option value="0" <?php selected((int)$w['enabled'], 0); ?>><?php esc_html_e('Off', 'ask-adam-lite'); ?></option>
+                    <option value="0" <?php selected((int)$w['enabled'], 0); ?>>
+    <?php esc_html_e('Off', 'ask-adam-lite'); ?>
+</option>
+<option value="1" <?php selected((int)$w['enabled'], 1); ?>>
+    <?php esc_html_e('On', 'ask-adam-lite'); ?>
+</option>
                   </select>
                 </div>
                 <div>
