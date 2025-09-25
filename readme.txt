@@ -2,18 +2,19 @@
 Contributors: askadam
 Tags: ai, chatbot, assistant, openai
 Requires at least: 5.8
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Ask Adam Lite is a secure, minimal AI chat widget and lightweight knowledge base for WordPress. 
-It works out of the box with your own OpenAI API key and provides a simple, standalone solution. 
+
 
 == Description ==
 
 Ask Adam Lite makes it easy to add an AI-powered assistant to your WordPress site.  
+It works out of the box with your own OpenAI API key and provides a simple, standalone solution. 
 You can display it as a floating widget or drop it into any page/post with the shortcode.
 
 **Features in Lite:**
@@ -45,10 +46,6 @@ Yes. Lite is a standalone product. It gives you a working chat widget and a smal
 = How do I upgrade to Pro? =
 Pro adds advanced features like multiple providers, real-time search, profiles, and theme controls.  
 You can learn more at [askadamit.com](https://www.askadamit.com).
-
-= How do I remove my API key? =
-Just clear the API key field in the Assistant tab and click "Save Settings."  
-This will erase the stored key from your site.
 
 == Screenshots ==
 
