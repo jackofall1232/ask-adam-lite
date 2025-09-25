@@ -1,16 +1,13 @@
 /* ==========================================================================
-   Ask Adam — Enhanced Admin UI (Premium Teal Gradient Design)
+   Ask Adam Lite — Admin UI (Premium Teal Gradient Design)
    File: assets/css/adam-admin.css
-   Features:
-   - Teal gradient glassmorphic cards
-   - Enhanced shimmer animations
-   - Premium button effects
-   - Improved accessibility
-   - Better mobile responsiveness
-   - Loading states and micro-interactions
+   Notes:
+   - Fully scoped under .adam-admin (no bleed).
+   - Teal gradient glassmorphism, richer shadows, improved states.
+   - Respects prefers-reduced-motion and dark mode.
    ========================================================================== */
 
-/* ---- Enhanced Variables with Teal Focus ---- */
+/* ---- Variables ---- */
 .adam-admin {
   --aa-maxw: 1200px;
   --aa-radius-lg: 16px;
@@ -18,40 +15,47 @@
   --aa-radius-pill: 50px;
   --aa-gap: 20px;
 
-  /* Enhanced Brand palette with teal gradients */
+  /* Brand palette */
   --aa-primary: #17a2a2;
   --aa-secondary: #0891b2;
   --aa-accent: #8b5cf6;
   --aa-success: #10b981;
   --aa-warning: #f59e0b;
-  --aa-danger: #ef4444;
-  
+  --aa-danger:  #ef4444;
+
   --aa-bg: #ffffff;
   --aa-text: #1f2937;
   --aa-text-light: #edf6f6;
   --aa-muted: #6b7280;
   --aa-border: #e2e8f0;
 
-  /* Teal-focused glassmorphic effects */
-  --aa-glass-bg: linear-gradient(135deg, rgba(23, 162, 162, 0.12), rgba(8, 145, 178, 0.08), rgba(14, 116, 144, 0.10));
+  /* Glass + shadows */
+  --aa-glass-bg: linear-gradient(135deg,
+    rgba(23, 162, 162, 0.12),
+    rgba(8, 145, 178, 0.08),
+    rgba(14, 116, 144, 0.10)
+  );
   --aa-glass-border: rgba(23, 162, 162, 0.25);
-  --aa-glass-hover: linear-gradient(135deg, rgba(23, 162, 162, 0.18), rgba(8, 145, 178, 0.12), rgba(14, 116, 144, 0.15));
-  
-  /* Enhanced shadows with teal glow */
+  --aa-glass-hover: linear-gradient(135deg,
+    rgba(23, 162, 162, 0.18),
+    rgba(8, 145, 178, 0.12),
+    rgba(14, 116, 144, 0.15)
+  );
+
   --aa-shadow: 0 8px 32px rgba(23, 162, 162, 0.15), 0 4px 16px rgba(0,0,0,0.08);
   --aa-shadow-hover: 0 16px 48px rgba(23, 162, 162, 0.25), 0 8px 32px rgba(0,0,0,0.12);
   --aa-shadow-focus: 0 0 0 3px rgba(23, 162, 162, 0.2), 0 8px 32px rgba(23, 162, 162, 0.15);
 
-  /* Enhanced button gradients */
-  --aa-btn-primary: linear-gradient(135deg, #17a2a2 0%, #0891b2 50%, #0e7490 100%);
+  /* Buttons */
+  --aa-btn-primary:   linear-gradient(135deg, #17a2a2 0%, #0891b2 50%, #0e7490 100%);
   --aa-btn-secondary: linear-gradient(135deg, #64748b 0%, #475569 100%);
-  --aa-btn-accent: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  --aa-btn-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --aa-btn-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  --aa-btn-accent:    linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  --aa-btn-success:   linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --aa-btn-danger:    linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 
-  /* Animation timing */
-  --aa-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --aa-transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Motion */
+  --aa-transition:       all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --aa-transition-fast:  all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 
   color: var(--aa-text);
   background: transparent;
@@ -63,7 +67,7 @@
 .adam-admin.is-light { color-scheme: light; }
 .adam-admin.is-dark  { color-scheme: dark; }
 
-/* Enhanced dark mode */
+/* Dark mode */
 @media (prefers-color-scheme: dark) {
   .adam-admin:not(.is-light) {
     --aa-bg: #0b0f17;
@@ -71,27 +75,30 @@
     --aa-text-light: #f9fafb;
     --aa-muted: #9ca3af;
     --aa-border: #374151;
-    
-    /* Stronger teal gradients for dark mode */
-    --aa-glass-bg: linear-gradient(135deg, rgba(23, 162, 162, 0.25), rgba(8, 145, 178, 0.15), rgba(14, 116, 144, 0.20));
+
+    --aa-glass-bg: linear-gradient(135deg,
+      rgba(23, 162, 162, 0.25),
+      rgba(8, 145, 178, 0.15),
+      rgba(14, 116, 144, 0.20)
+    );
     --aa-glass-border: rgba(23, 162, 162, 0.4);
-    --aa-glass-hover: linear-gradient(135deg, rgba(23, 162, 162, 0.35), rgba(8, 145, 178, 0.25), rgba(14, 116, 144, 0.30));
-    
+    --aa-glass-hover: linear-gradient(135deg,
+      rgba(23, 162, 162, 0.35),
+      rgba(8, 145, 178, 0.25),
+      rgba(14, 116, 144, 0.30)
+    );
+
     --aa-shadow: 0 8px 32px rgba(23, 162, 162, 0.3), 0 4px 16px rgba(0,0,0,0.4);
     --aa-shadow-hover: 0 16px 48px rgba(23, 162, 162, 0.4), 0 8px 32px rgba(0,0,0,0.5);
   }
 }
 
 /* Base container */
-.adam-admin .aa-container {
-  max-width: var(--aa-maxw);
-  margin: 0 auto;
-}
+.adam-admin .aa-container { max-width: var(--aa-maxw); margin: 0 auto; }
 
 /* ==========================================================================
-   ENHANCED HERO SECTION
+   HERO
    ========================================================================== */
-
 .adam-admin .adam-hero {
   position: relative;
   margin: 8px 0 24px;
@@ -101,12 +108,10 @@
   box-shadow: var(--aa-shadow);
   transition: var(--aa-transition);
 }
-
 .adam-admin .adam-hero:hover {
   transform: translateY(-2px);
   box-shadow: var(--aa-shadow-hover);
 }
-
 .adam-admin .adam-hero__inner {
   display: flex;
   gap: 20px;
@@ -119,83 +124,42 @@
   position: relative;
   overflow: hidden;
 }
-
-/* Enhanced hero shimmer */
 .adam-admin .adam-hero__inner::before {
   content: '';
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, 
-    transparent 25%, 
-    rgba(23, 162, 162, 0.2) 40%,
-    rgba(255,255,255,0.15) 50%, 
-    rgba(8, 145, 178, 0.2) 60%,
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: linear-gradient(45deg,
+    transparent 25%,
+    rgba(23,162,162,0.2) 40%,
+    rgba(255,255,255,0.15) 50%,
+    rgba(8,145,178,0.2) 60%,
     transparent 75%
   );
   animation: heroShimmer 6s infinite;
   pointer-events: none;
 }
-
 @keyframes heroShimmer {
   0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
   100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
 }
-
 .adam-admin .adam-hero__brand {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  position: relative;
-  z-index: 2;
+  display: flex; align-items: center; gap: 16px; position: relative; z-index: 2;
 }
-
 .adam-admin .adam-hero__logo {
-  display: inline-block;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  overflow: hidden;
-  flex: 0 0 auto;
-  background: rgba(255,255,255,0.95);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  transition: var(--aa-transition);
+  display: inline-block; width: 48px; height: 48px; border-radius: 12px; overflow: hidden; flex: 0 0 auto;
+  background: rgba(255,255,255,0.95); box-shadow: 0 4px 16px rgba(0,0,0,0.15); transition: var(--aa-transition);
 }
-
-.adam-admin .adam-hero__logo:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-}
-
-.adam-admin .adam-hero__logo img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
+.adam-admin .adam-hero__logo:hover { transform: scale(1.05); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+.adam-admin .adam-hero__logo img { display:block; width:100%; height:100%; object-fit:contain; }
 .adam-admin .adam-hero__title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--aa-text-light);
-  line-height: 1.2;
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-size: 24px; font-weight: 700; color: var(--aa-text-light); line-height: 1.2; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-
-.adam-admin .adam-hero__subtitle {
-  font-size: 14px;
-  color: rgba(237, 246, 246, 0.9);
-  margin: 0;
-  font-weight: 500;
-}
+.adam-admin .adam-hero__subtitle { font-size: 14px; color: rgba(237,246,246,0.9); margin: 0; font-weight: 500; }
 
 /* ==========================================================================
-   ENHANCED TEAL GRADIENT CARDS
+   CARDS
    ========================================================================== */
-
 .adam-admin .anna-card {
   background: var(--aa-glass-bg);
   backdrop-filter: blur(20px);
@@ -209,693 +173,280 @@
   overflow: hidden;
   transition: var(--aa-transition);
 }
-
-/* Enhanced teal shimmer effect */
 .adam-admin .anna-card::before {
   content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, 
-    transparent 30%, 
-    rgba(23, 162, 162, 0.15) 45%,
-    rgba(255,255,255,0.12) 50%, 
-    rgba(8, 145, 178, 0.15) 55%,
+  position: absolute; top:-50%; left:-50%; width:200%; height:200%;
+  background: linear-gradient(45deg,
+    transparent 30%,
+    rgba(23,162,162,0.15) 45%,
+    rgba(255,255,255,0.12) 50%,
+    rgba(8,145,178,0.15) 55%,
     transparent 70%
   );
-  animation: cardShimmer 8s infinite;
-  pointer-events: none;
+  animation: cardShimmer 8s infinite; pointer-events: none;
 }
-
 @keyframes cardShimmer {
   0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
   100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
 }
-
 .adam-admin .anna-card:hover {
   transform: translateY(-3px);
   box-shadow: var(--aa-shadow-hover);
   background: var(--aa-glass-hover);
-  border-color: rgba(23, 162, 162, 0.4);
+  border-color: rgba(23,162,162,0.4);
 }
-
-.adam-admin .anna-card:focus-within {
-  box-shadow: var(--aa-shadow-focus);
-  border-color: rgba(23, 162, 162, 0.5);
-}
-
-.adam-admin .anna-card > * {
-  position: relative;
-  z-index: 2;
-}
-
-/* Card headers with enhanced typography */
+.adam-admin .anna-card:focus-within { box-shadow: var(--aa-shadow-focus); border-color: rgba(23,162,162,0.5); }
+.adam-admin .anna-card > * { position: relative; z-index: 2; }
 .adam-admin .anna-card h2,
 .adam-admin .anna-card h3 {
-  color: var(--aa-text);
-  margin-top: 0;
-  margin-bottom: 16px;
-  font-weight: 700;
-  line-height: 1.3;
+  color: var(--aa-text); margin-top: 0; margin-bottom: 16px; font-weight: 700; line-height: 1.3;
 }
-
-.adam-admin .anna-card h2 { 
-  font-size: 20px; 
-  letter-spacing: -0.01em;
-}
-.adam-admin .anna-card h3 { 
-  font-size: 18px;
-  letter-spacing: -0.005em;
-}
+.adam-admin .anna-card h2 { font-size: 20px; letter-spacing: -0.01em; }
+.adam-admin .anna-card h3 { font-size: 18px; letter-spacing: -0.005em; }
 
 /* ==========================================================================
-   ENHANCED GRID SYSTEM
+   GRIDS
    ========================================================================== */
-
-.adam-admin .anna-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: var(--aa-gap);
-}
-.adam-admin .anna-grid .full {
-  grid-column: 1 / -1;
-}
-
-.adam-admin .anna-grid-2 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--aa-gap);
-}
-
-.adam-admin .anna-grid-3 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--aa-gap);
-}
-
+.adam-admin .anna-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(320px,1fr)); gap:var(--aa-gap); }
+.adam-admin .anna-grid .full { grid-column: 1 / -1; }
+.adam-admin .anna-grid-2 { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:var(--aa-gap); }
+.adam-admin .anna-grid-3 { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:var(--aa-gap); }
 @media (max-width: 900px) {
   .adam-admin .anna-grid,
   .adam-admin .anna-grid-2,
-  .adam-admin .anna-grid-3 { 
-    grid-template-columns: 1fr; 
-  }
+  .adam-admin .anna-grid-3 { grid-template-columns: 1fr; }
 }
 
 /* ==========================================================================
-   ENHANCED FORMS WITH BETTER UX
+   FORMS
    ========================================================================== */
-
-.adam-admin .anna-label {
-  font-weight: 600;
-  margin-bottom: 6px;
-  display: block;
-  color: var(--aa-text);
-  font-size: 14px;
-  line-height: 1.4;
-}
-
+.adam-admin .anna-label { font-weight:600; margin-bottom:6px; display:block; color:var(--aa-text); font-size:14px; line-height:1.4; }
 .adam-admin .anna-input,
 .adam-admin .anna-textarea,
 .adam-admin .anna-select {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid var(--aa-border);
-  border-radius: 12px;
-  background: rgba(255,255,255,0.9);
-  color: var(--aa-text);
-  line-height: 1.5;
-  font-size: 14px;
-  transition: var(--aa-transition);
-  backdrop-filter: blur(10px);
-  font-family: inherit;
+  width:100%; padding:12px 16px; border:1px solid var(--aa-border); border-radius:12px;
+  background: rgba(255,255,255,0.9); color:var(--aa-text); line-height:1.5; font-size:14px;
+  transition: var(--aa-transition); backdrop-filter: blur(10px); font-family: inherit;
 }
-
 .adam-admin .anna-input:focus,
 .adam-admin .anna-textarea:focus,
 .adam-admin .anna-select:focus {
-  outline: none;
-  border-color: var(--aa-primary);
-  box-shadow: 0 0 0 3px rgba(23, 162, 162, 0.1);
-  background: rgba(255,255,255,0.98);
-  transform: translateY(-1px);
+  outline:none; border-color:var(--aa-primary); box-shadow: 0 0 0 3px rgba(23,162,162,0.1);
+  background: rgba(255,255,255,0.98); transform: translateY(-1px);
 }
-
 .adam-admin .anna-input:invalid,
 .adam-admin .anna-textarea:invalid {
   border-color: var(--aa-danger);
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
 }
+.adam-admin .anna-textarea { min-height:120px; resize:vertical; font-family: inherit; }
+.adam-admin .anna-hint { color:var(--aa-muted); font-size:12px; margin-top:6px; line-height:1.4; }
+.adam-admin .anna-muted { color:var(--aa-muted); font-size:12px; }
+.adam-admin .anna-kb-stats { font-size:13px; color:var(--aa-text); opacity:.8; font-weight:500; }
 
-.adam-admin .anna-textarea {
-  min-height: 120px;
-  resize: vertical;
-  font-family: inherit;
-}
-
-.adam-admin .anna-hint {
-  color: var(--aa-muted);
-  font-size: 12px;
-  margin-top: 6px;
-  line-height: 1.4;
-}
-
-.adam-admin .anna-muted { 
-  color: var(--aa-muted); 
-  font-size: 12px; 
-}
-
-.adam-admin .anna-kb-stats {
-  font-size: 13px;
-  color: var(--aa-text);
-  opacity: 0.8;
-  font-weight: 500;
-}
-
-/* Loading state for inputs */
+/* Loading shimmer for inputs */
 .adam-admin .anna-input.is-loading,
 .adam-admin .anna-textarea.is-loading {
-  background-image: linear-gradient(90deg, transparent, rgba(23, 162, 162, 0.1), transparent);
+  background-image: linear-gradient(90deg, transparent, rgba(23,162,162,0.1), transparent);
   background-size: 200% 100%;
   animation: inputLoading 1.5s infinite;
 }
-
-@keyframes inputLoading {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
+@keyframes inputLoading { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
 /* ==========================================================================
-   ENHANCED BUTTONS WITH MICRO-INTERACTIONS
+   BUTTONS
    ========================================================================== */
-
 .adam-admin .anna-actions {
-  margin-top: 20px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
+  margin-top:20px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;
 }
-
 .adam-admin .anna-btn {
-  background: var(--aa-btn-primary);
-  color: #ffffff;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 20px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 1.4;
-  transition: var(--aa-transition);
-  box-shadow: 0 4px 16px rgba(23, 162, 162, 0.3);
-  position: relative;
-  overflow: hidden;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  white-space: nowrap;
-  font-family: inherit;
+  background: var(--aa-btn-primary); color:#fff; border:none; border-radius:12px;
+  padding:12px 20px; cursor:pointer; font-weight:600; font-size:14px; line-height:1.4;
+  transition: var(--aa-transition); box-shadow: 0 4px 16px rgba(23,162,162,0.3);
+  position:relative; overflow:hidden; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; white-space:nowrap; font-family:inherit;
 }
-
-/* Enhanced button shimmer */
 .adam-admin .anna-btn::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, 
-    transparent 30%, 
-    rgba(255,255,255,0.2) 50%, 
-    transparent 70%
-  );
-  animation: buttonShimmer 3s infinite;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+  animation: buttonShimmer 3s infinite; pointer-events:none; opacity:0; transition: opacity .3s ease;
 }
-
-@keyframes buttonShimmer {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-}
-
-.adam-admin .anna-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(23, 162, 162, 0.4);
-}
-
-.adam-admin .anna-btn:hover::before { 
-  opacity: 1; 
-}
-
-.adam-admin .anna-btn:active { 
-  transform: translateY(0); 
-  transition: var(--aa-transition-fast);
-}
-
-.adam-admin .anna-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-.adam-admin .anna-btn:disabled::before {
-  display: none;
-}
+@keyframes buttonShimmer { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg);} 100% { transform: translateX(100%) translateY(100%) rotate(45deg);} }
+.adam-admin .anna-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(23,162,162,0.4); }
+.adam-admin .anna-btn:hover::before { opacity: 1; }
+.adam-admin .anna-btn:active { transform: translateY(0); transition: var(--aa-transition-fast); }
+.adam-admin .anna-btn:disabled { opacity:.6; cursor:not-allowed; transform:none !important; }
+.adam-admin .anna-btn:disabled::before { display:none; }
 
 /* Button variants */
-.adam-admin .anna-btn.secondary {
-  background: var(--aa-btn-secondary);
-  box-shadow: 0 4px 16px rgba(100, 116, 139, 0.3);
-}
-.adam-admin .anna-btn.secondary:hover {
-  box-shadow: 0 8px 24px rgba(100, 116, 139, 0.4);
-}
+.adam-admin .anna-btn.secondary { background: var(--aa-btn-secondary); box-shadow: 0 4px 16px rgba(100,116,139,0.3); }
+.adam-admin .anna-btn.secondary:hover { box-shadow: 0 8px 24px rgba(100,116,139,0.4); }
+.adam-admin .anna-btn.accent    { background: var(--aa-btn-accent); box-shadow: 0 4px 16px rgba(139,92,246,0.3); }
+.adam-admin .anna-btn.accent:hover { box-shadow: 0 8px 24px rgba(139,92,246,0.4); }
+.adam-admin .anna-btn.success   { background: var(--aa-btn-success); box-shadow: 0 4px 16px rgba(16,185,129,0.3); }
+.adam-admin .anna-btn.success:hover { box-shadow: 0 8px 24px rgba(16,185,129,0.4); }
+.adam-admin .anna-btn.danger    { background: var(--aa-btn-danger); box-shadow: 0 4px 16px rgba(239,68,68,0.3); }
+.adam-admin .anna-btn.danger:hover { box-shadow: 0 8px 24px rgba(239,68,68,0.4); }
 
-.adam-admin .anna-btn.accent {
-  background: var(--aa-btn-accent);
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
-}
-.adam-admin .anna-btn.accent:hover {
-  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
-}
-
-.adam-admin .anna-btn.success {
-  background: var(--aa-btn-success);
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
-}
-.adam-admin .anna-btn.success:hover {
-  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
-}
-
-.adam-admin .anna-btn.danger {
-  background: var(--aa-btn-danger);
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
-}
-.adam-admin .anna-btn.danger:hover {
-  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
-}
-
-/* Small button variant */
-.adam-admin .anna-btn.small {
-  padding: 8px 14px;
-  font-size: 12px;
-  border-radius: 8px;
-}
-
-/* Icon buttons */
-.adam-admin .anna-btn.icon-only {
-  padding: 12px;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-}
+/* Sizes & icon-only */
+.adam-admin .anna-btn.small { padding: 8px 14px; font-size:12px; border-radius:8px; }
+.adam-admin .anna-btn.icon-only { padding:12px; border-radius:50%; width:44px; height:44px; }
 
 /* ==========================================================================
-   ENHANCED BADGES & STATUS INDICATORS
+   BADGES
    ========================================================================== */
-
 .adam-admin .anna-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
+  display:inline-flex; align-items:center; gap:4px; padding:4px 10px;
   border-radius: var(--aa-radius-pill);
-  background: rgba(23, 162, 162, 0.1);
-  color: var(--aa-primary);
-  font-size: 12px;
-  font-weight: 600;
-  margin-left: 8px;
-  border: 1px solid rgba(23, 162, 162, 0.2);
-  line-height: 1.3;
+  background: rgba(23,162,162,0.1); color: var(--aa-primary);
+  font-size:12px; font-weight:600; margin-left:8px;
+  border:1px solid rgba(23,162,162,0.2); line-height:1.3;
 }
-
-.adam-admin .anna-badge.gray {
-  background: rgba(107, 114, 128, 0.1);
-  color: var(--aa-muted);
-  border-color: rgba(107, 114, 128, 0.2);
-}
-
-.adam-admin .anna-badge.accent {
-  background: rgba(139, 92, 246, 0.1);
-  color: var(--aa-accent);
-  border-color: rgba(139, 92, 246, 0.2);
-}
-
-.adam-admin .anna-badge.success {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--aa-success);
-  border-color: rgba(16, 185, 129, 0.2);
-}
-
-.adam-admin .anna-badge.warning {
-  background: rgba(245, 158, 11, 0.1);
-  color: var(--aa-warning);
-  border-color: rgba(245, 158, 11, 0.2);
-}
-
-.adam-admin .anna-badge.danger {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--aa-danger);
-  border-color: rgba(239, 68, 68, 0.2);
-}
-
-/* Pulsing status indicators */
+.adam-admin .anna-badge.gray    { background:rgba(107,114,128,0.1); color:var(--aa-muted);   border-color:rgba(107,114,128,0.2); }
+.adam-admin .anna-badge.accent  { background:rgba(139,92,246,0.1);  color:var(--aa-accent);  border-color:rgba(139,92,246,0.2); }
+.adam-admin .anna-badge.success { background:rgba(16,185,129,0.1);  color:var(--aa-success); border-color:rgba(16,185,129,0.2); }
+.adam-admin .anna-badge.warning { background:rgba(245,158,11,0.1);  color:var(--aa-warning); border-color:rgba(245,158,11,0.2); }
+.adam-admin .anna-badge.danger  { background:rgba(239,68,68,0.1);   color:var(--aa-danger);  border-color:rgba(239,68,68,0.2); }
 .adam-admin .anna-badge.pulse::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-  animation: pulse 2s infinite;
+  content:''; width:6px; height:6px; border-radius:50%; background: currentColor; animation: pulse 2s infinite;
 }
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.5; } }
 
 /* ==========================================================================
-   LAYOUT UTILITIES
+   LAYOUT UTILS
    ========================================================================== */
-
 .adam-admin .anna-row,
-.adam-admin .anna-row-wrap {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-.adam-admin .anna-row-wrap { 
-  flex-wrap: wrap; 
-}
-
-.adam-admin .anna-space-between {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.adam-admin .anna-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-}
+.adam-admin .anna-row-wrap { display:flex; gap:12px; align-items:center; }
+.adam-admin .anna-row-wrap { flex-wrap:wrap; }
+.adam-admin .anna-space-between { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.adam-admin .anna-center { display:flex; justify-content:center; align-items:center; gap:12px; }
 
 /* ==========================================================================
-   ENHANCED CONSOLE/CODE DISPLAY
+   CONSOLE
    ========================================================================== */
-
 .adam-admin .anna-console {
   background: linear-gradient(135deg, #0f172a, #1e293b);
-  color: #e2e8f0;
-  border-radius: var(--aa-radius-lg);
-  padding: 16px;
-  height: 280px;
-  overflow: auto;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', Consolas, 'Courier New', monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  border: 1px solid #334155;
-  box-shadow: 
-    inset 0 2px 8px rgba(0,0,0,0.3),
-    0 4px 16px rgba(0,0,0,0.1);
-  position: relative;
+  color:#e2e8f0; border-radius: var(--aa-radius-lg); padding:16px; height:280px; overflow:auto;
+  font-family:'JetBrains Mono','Fira Code','Monaco',Consolas,'Courier New',monospace;
+  font-size:13px; line-height:1.6; border:1px solid #334155;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.1);
+  position:relative;
 }
-
 .adam-admin .anna-console::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
   background: linear-gradient(90deg, var(--aa-primary), var(--aa-secondary));
 }
 
 /* ==========================================================================
-   ENHANCED TABS WITH BETTER ACCESSIBILITY
+   TABS
    ========================================================================== */
-
-.adam-admin .adam-tabs { 
-  max-width: var(--aa-maxw); 
-}
-
+.adam-admin .adam-tabs { max-width: var(--aa-maxw); }
 .adam-admin .adam-tablist {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 20px;
-  padding: 0;
-  list-style: none;
-  role: tablist;
+  display:flex; flex-wrap:wrap; gap:8px; margin:0 0 20px; padding:0; list-style:none;
 }
-
 .adam-admin .adam-tab {
-  appearance: none;
-  border: 1px solid rgba(23, 162, 162, 0.2);
-  background: linear-gradient(135deg, rgba(23, 162, 162, 0.08), rgba(8, 145, 178, 0.05));
-  backdrop-filter: blur(10px);
-  color: var(--aa-text);
-  border-radius: 12px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--aa-transition);
-  position: relative;
-  overflow: hidden;
-  font-family: inherit;
+  appearance:none; border:1px solid rgba(23,162,162,0.2);
+  background: linear-gradient(135deg, rgba(23,162,162,0.08), rgba(8,145,178,0.05));
+  backdrop-filter: blur(10px); color:var(--aa-text); border-radius:12px;
+  padding:10px 16px; font-size:14px; font-weight:500; cursor:pointer; transition: var(--aa-transition);
+  position:relative; overflow:hidden; font-family: inherit;
 }
-
 .adam-admin .adam-tab::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, 
-    transparent 30%, 
-    rgba(255,255,255,0.1) 50%, 
-    transparent 70%
-  );
-  animation: tabShimmer 4s infinite;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+  animation: tabShimmer 4s infinite; pointer-events:none; opacity:0; transition: opacity .3s ease;
 }
-
-@keyframes tabShimmer {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-}
-
-.adam-admin .adam-tab:hover {
-  background: linear-gradient(135deg, rgba(23, 162, 162, 0.15), rgba(8, 145, 178, 0.10));
-  border-color: rgba(23, 162, 162, 0.3);
-  transform: translateY(-1px);
-}
-
-.adam-admin .adam-tab:hover::before { 
-  opacity: 1; 
-}
-
-.adam-admin .adam-tab:focus {
-  outline: none;
-  box-shadow: var(--aa-shadow-focus);
-}
-
+@keyframes tabShimmer { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg);} 100% { transform: translateX(100%) translateY(100%) rotate(45deg);} }
+.adam-admin .adam-tab:hover { background: linear-gradient(135deg, rgba(23,162,162,0.15), rgba(8,145,178,0.10)); border-color: rgba(23,162,162,0.3); transform: translateY(-1px); }
+.adam-admin .adam-tab:hover::before { opacity:1; }
+.adam-admin .adam-tab:focus { outline: none; box-shadow: var(--aa-shadow-focus); }
 .adam-admin .adam-tab.is-active {
-  background: var(--aa-btn-primary);
-  border-color: transparent;
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(23, 162, 162, 0.3);
-  transform: translateY(-2px);
+  background: var(--aa-btn-primary); border-color: transparent; color:#fff;
+  box-shadow: 0 4px 16px rgba(23,162,162,0.3); transform: translateY(-2px);
 }
-
-.adam-admin .adam-tab.is-active::before {
-  opacity: 1;
-  background: linear-gradient(45deg, 
-    transparent 30%, 
-    rgba(255,255,255,0.2) 50%, 
-    transparent 70%
-  );
-}
-
-.adam-admin .adam-tabpanel { 
-  display: block; 
-}
-.adam-admin .adam-tabpanel[hidden] { 
-  display: none !important; 
-}
+.adam-admin .adam-tab.is-active::before { opacity:1; background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%); }
+.adam-admin .adam-tabpanel { display:block; }
+.adam-admin .adam-tabpanel[hidden] { display:none !important; }
 
 /* ==========================================================================
-   PROGRESS & LOADING STATES
+   PROGRESS / LOADING
    ========================================================================== */
-
 .adam-admin .anna-progress {
-  width: 100%;
-  height: 8px;
-  background: rgba(23, 162, 162, 0.1);
-  border-radius: var(--aa-radius-pill);
-  overflow: hidden;
-  position: relative;
+  width:100%; height:8px; background: rgba(23,162,162,0.1);
+  border-radius: var(--aa-radius-pill); overflow:hidden; position:relative;
 }
-
 .adam-admin .anna-progress-bar {
-  height: 100%;
-  background: var(--aa-btn-primary);
-  border-radius: var(--aa-radius-pill);
-  transition: width 0.3s ease;
-  position: relative;
+  height:100%; background: var(--aa-btn-primary); border-radius: var(--aa-radius-pill);
+  transition: width .3s ease; position:relative;
 }
-
 .adam-admin .anna-progress-bar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(255,255,255,0.3), 
-    transparent
-  );
+  content:''; position:absolute; inset:0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
   animation: progressShimmer 1.5s infinite;
 }
-
-@keyframes progressShimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-/* Loading spinner */
+@keyframes progressShimmer { 0% { transform: translateX(-100%);} 100% { transform: translateX(100%);} }
 .adam-admin .anna-spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(23, 162, 162, 0.2);
-  border-top: 2px solid var(--aa-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+  width:20px; height:20px; border:2px solid rgba(23,162,162,0.2); border-top:2px solid var(--aa-primary);
+  border-radius:50%; animation: spin 1s linear infinite;
 }
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
 
 /* ==========================================================================
-   NOTIFICATIONS & ALERTS
+   NOTICES
    ========================================================================== */
-
 .adam-admin .anna-notice {
-  padding: 16px 20px;
-  border-radius: var(--aa-radius-lg);
-  margin-bottom: 16px;
-  border-left: 4px solid;
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  transition: var(--aa-transition);
+  padding:16px 20px; border-radius: var(--aa-radius-lg); margin-bottom:16px;
+  border-left:4px solid; backdrop-filter: blur(10px);
+  display:flex; align-items:flex-start; gap:12px; transition: var(--aa-transition);
 }
-
-.adam-admin .anna-notice.success {
-  background: rgba(16, 185, 129, 0.1);
-  border-color: var(--aa-success);
-  color: var(--aa-success);
-}
-
-.adam-admin .anna-notice.warning {
-  background: rgba(245, 158, 11, 0.1);
-  border-color: var(--aa-warning);
-  color: var(--aa-warning);
-}
-
-.adam-admin .anna-notice.danger {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: var(--aa-danger);
-  color: var(--aa-danger);
-}
-
-.adam-admin .anna-notice.info {
-  background: rgba(23, 162, 162, 0.1);
-  border-color: var(--aa-primary);
-  color: var(--aa-primary);
-}
+.adam-admin .anna-notice.success { background: rgba(16,185,129,0.1); border-color: var(--aa-success); color: var(--aa-success); }
+.adam-admin .anna-notice.warning { background: rgba(245,158,11,0.1); border-color: var(--aa-warning); color: var(--aa-warning); }
+.adam-admin .anna-notice.danger  { background: rgba(239,68,68,0.1); border-color: var(--aa-danger);  color: var(--aa-danger); }
+.adam-admin .anna-notice.info    { background: rgba(23,162,162,0.1); border-color: var(--aa-primary); color: var(--aa-primary); }
 
 /* ==========================================================================
    FOOTER
    ========================================================================== */
-
 .adam-admin .adam-footer {
   max-width: var(--aa-maxw);
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--aa-glass-border);
-  color: var(--aa-muted);
-  font-size: 12px;
-  text-align: center;
+  margin-top:24px; padding-top:20px; border-top:1px solid var(--aa-glass-border);
+  color: var(--aa-muted); font-size:12px; text-align:center;
 }
 .adam-admin .adam-footer a {
-  color: var(--aa-primary);
-  text-decoration: none;
-  transition: color 0.2s ease;
+  color: var(--aa-primary); text-decoration:none; transition: color .2s ease;
 }
-.adam-admin .adam-footer a:hover {
-  color: var(--aa-secondary);
-  text-decoration: underline;
-}
+.adam-admin .adam-footer a:hover { color: var(--aa-secondary); text-decoration: underline; }
 
 /* ==========================================================================
    MENU ICON
    ========================================================================== */
-
 #adminmenu .toplevel_page_ask-adam .wp-menu-image img {
-  width: 20px;
-  height: 20px;
-  opacity: 0.8;
-  transition: opacity 0.2s ease;
+  width:20px; height:20px; opacity:.8; transition: opacity .2s ease;
 }
 #adminmenu .toplevel_page_ask-adam:hover .wp-menu-image img,
 #adminmenu .toplevel_page_ask-adam.wp-has-current-submenu .wp-menu-image img {
-  opacity: 1;
+  opacity:1;
 }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN
+   RESPONSIVE
    ========================================================================== */
-
 @media (max-width: 768px) {
-  .adam-admin .adam-hero__inner {
-    padding: 20px;
-    flex-direction: column;
-    text-align: center;
-  }
-  .adam-admin .anna-card { padding: 20px; }
-  .adam-admin .anna-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .adam-admin .anna-btn { width: 100%; justify-content: center; }
-  .adam-admin .adam-tablist { justify-content: center; }
+  .adam-admin .adam-hero__inner { padding:20px; flex-direction:column; text-align:center; }
+  .adam-admin .anna-card { padding:20px; }
+  .adam-admin .anna-actions { flex-direction:column; align-items:stretch; }
+  .adam-admin .anna-btn { width:100%; justify-content:center; }
+  .adam-admin .adam-tablist { justify-content:center; }
 }
 
 /* ==========================================================================
-   Reduced motion nicety
+   Reduced motion
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   .adam-admin .adam-tab,
   .adam-admin .anna-btn,
   .adam-admin .anna-card,
-  .adam-admin .adam-hero__inner { animation: none !important; transition: none !important; }
+  .adam-admin .adam-hero__inner {
+    animation: none !important;
+    transition: none !important;
+  }
 }
