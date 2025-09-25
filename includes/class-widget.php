@@ -18,14 +18,22 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
             'avatar_url'     => ''
         ];
         $w = wp_parse_args(get_option('aalite_widget_settings', []), $defaults);
-        if (!(int)$w['enabled']) return;
+        if (!(int) $w['enabled']) return;
 
         $pos_class = in_array($w['position'], ['bottom-right','bottom-left'], true)
-            ? 'aalite-pos-'.$w['position'] : 'aalite-pos-bottom-right';
+            ? 'aalite-pos-' . $w['position']
+            : 'aalite-pos-bottom-right';
 
-        $name   = esc_html($w['assistant_name']);
-        $avatar = esc_url($w['avatar_url']);
-        $display_name = $name . ' • Free Version'; // <<< only change
+        // Keep raw, escape on output
+        $assistant_name = (string) $w['assistant_name'];
+        $avatar_url     = (string) $w['avatar_url'];
+        $display_name   = $assistant_name . ' • Free Version';
+
+        // Initial (fallback avatar)
+        $initial = '';
+        if ($assistant_name !== '') {
+            $initial = strtoupper((function_exists('mb_substr') ? mb_substr($assistant_name, 0, 1) : substr($assistant_name, 0, 1)));
+        }
 
         // Enhanced toggle helper with better error handling
         static $printed_toggle = false;
@@ -37,11 +45,11 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
                 var el = document.querySelector('[data-aalite-id="'+ uuid +'"]'); if(!el) return;
                 var panel = el.querySelector('.aalite-panel'); if(!panel) return;
                 var fab = el.querySelector('.aalite-btn');
-                
+
                 if(open){
                   panel.removeAttribute('hidden');
                   if(fab) fab.setAttribute('aria-expanded', 'true');
-                  var ta = panel.querySelector('textarea'); 
+                  var ta = panel.querySelector('textarea');
                   if(ta) {
                     setTimeout(function() {
                       try{ ta.focus(); }catch(e){}
@@ -55,7 +63,7 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
                   }
                 }
               };
-              
+
               // ESC key support
               document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
@@ -80,8 +88,8 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
              class="<?php echo esc_attr($pos_class); ?> anna-root"
              data-aalite-id="<?php echo esc_attr($uuid); ?>">
           <!-- Floating Action Button (FAB) -->
-          <button class="aalite-btn anna-fab" type="button" 
-                  aria-label="Open <?php echo esc_attr($name); ?> chat"
+          <button class="aalite-btn anna-fab" type="button"
+                  aria-label="<?php echo esc_attr(sprintf('Open %s chat', $assistant_name)); ?>"
                   aria-expanded="false"
                   onclick="AALiteToggle('<?php echo esc_js($uuid); ?>', true)"></button>
 
@@ -90,12 +98,12 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
             <!-- Header -->
             <div class="aalite-head anna-head">
               <div class="anna-identity">
-                <?php if ($avatar): ?>
-                  <img src="<?php echo $avatar; ?>" alt="<?php echo esc_attr($name); ?>" 
+                <?php if (!empty($avatar_url)): ?>
+                  <img src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr($assistant_name); ?>"
                        class="aalite-avatar anna-avatar" loading="lazy"/>
                 <?php else: ?>
                   <div class="aalite-avatar aa-fallback anna-avatar">
-                    <?php echo esc_html(strtoupper(substr($name, 0, 1))); ?>
+                    <?php echo esc_html($initial); ?>
                   </div>
                 <?php endif; ?>
                 <div class="anna-titles">
@@ -105,24 +113,24 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
               </div>
 
               <!-- Close -->
-              <button class="aalite-close anna-close" type="button" 
-                      aria-label="Close chat"
+              <button class="aalite-close anna-close" type="button"
+                      aria-label="<?php echo esc_attr__('Close chat', 'ask-adam-lite'); ?>"
                       onclick="AALiteToggle('<?php echo esc_js($uuid); ?>', false)">×</button>
             </div>
 
             <!-- Conversation body (Lite hook retained) -->
-            <div class="aalite-body anna-body" 
-                 role="log" 
+            <div class="aalite-body anna-body"
+                 role="log"
                  aria-live="polite"></div>
 
             <!-- Composer (Lite hook retained) -->
             <form class="aalite-form anna-form" method="dialog" onsubmit="return false">
               <div class="anna-input-wrap">
-                <textarea class="anna-textarea" required 
-                          placeholder="Ask a question…"
+                <textarea class="anna-textarea" required
+                          placeholder="<?php echo esc_attr__('Ask a question…', 'ask-adam-lite'); ?>"
                           maxlength="2000"
-                          aria-label="Your message"></textarea>
-                <button class="anna-send" type="submit" aria-label="Send">
+                          aria-label="<?php echo esc_attr__('Your message', 'ask-adam-lite'); ?>"></textarea>
+                <button class="anna-send" type="submit" aria-label="<?php echo esc_attr__('Send', 'ask-adam-lite'); ?>">
                   <!-- Inline paper plane icon (generic, accessible, no external deps) -->
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -140,13 +148,14 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
                 </button>
               </div>
               <div class="anna-footnote">
-                <span class="anna-muted">Powered by GPT-4o mini • <em>Ask Adam Lite-Free</em></span>
+                <span class="anna-muted"><?php echo esc_html__('Powered by GPT-4o mini • ', 'ask-adam-lite'); ?><em><?php echo esc_html__('Ask Adam Lite-Free', 'ask-adam-lite'); ?></em></span>
               </div>
             </form>
 
             <noscript>
               <div class="aa-msg err anna-noscript">
-                <strong>JavaScript Required:</strong> Ask Adam Lite requires JavaScript to function.
+                <strong><?php echo esc_html__('JavaScript Required:', 'ask-adam-lite'); ?></strong>
+                <?php echo esc_html__('Ask Adam Lite requires JavaScript to function.', 'ask-adam-lite'); ?>
               </div>
             </noscript>
           </div>
