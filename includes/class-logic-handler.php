@@ -129,7 +129,9 @@ class Ask_Adam_Lite_Logic {
             if ($safe_msg === '') {
                 // fallback to short excerpt of raw body without newlines
                 $excerpt = preg_replace('/\s+/', ' ', mb_substr($raw, 0, 200));
-                $safe_msg = sprintf(__('HTTP %d: %s', 'ask-adam-lite'), $code, $excerpt);
+                /* translators: 1: HTTP status code, 2: short excerpt of the response body */
+                $format = __('HTTP %1$d: %2$s', 'ask-adam-lite');
+                $safe_msg = sprintf($format, $code, $excerpt);
             }
             return new WP_Error('aalite_openai_http', $safe_msg, ['status' => $code]);
         }
