@@ -1,0 +1,387 @@
+/* ===============================
+   Ask Adam Lite — Premium Widget UI (Enhanced Contrast)
+   =============================== */
+
+/* ---- Scope reset & guards (resist theme overrides) ---- */
+#aalite-widget, .aalite-embed {
+  font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--aa-text, #111827) !important; /* Added !important for better override */
+}
+#aalite-widget *, .aalite-embed * { 
+  box-sizing: border-box; 
+}
+
+/* Neutralize aggressive theme styles */
+#aalite-widget button, .aalite-embed button,
+#aalite-widget textarea, .aalite-embed textarea {
+  appearance: none; -webkit-appearance: none;
+  background: none; border: 0; font: inherit; 
+  color: inherit !important; /* Stronger inheritance */
+}
+
+/* Make sure we float over sticky headers/footers */
+#aalite-widget { z-index: 999999; }
+
+/* Force our rounded corners/background in case themes inject theirs */
+#aalite-widget .aalite-panel, .aalite-embed .aalite-panel {
+  border-radius: 20px !important;
+  background: var(--aa-panel-bg, rgba(255,255,255,0.95)) !important;
+  border: 1px solid var(--aa-panel-border, rgba(0,0,0,0.12)) !important;
+  color: var(--aa-text, #111827) !important;
+}
+
+/* Close button with better contrast */
+.aalite-close {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: grid; place-items: center;
+  background: var(--aa-close-bg, rgba(0,0,0,0.08)) !important;
+  color: var(--aa-close-text, #374151) !important; 
+  transition: all .2s ease;
+  font-weight: 600;
+}
+.aalite-close:hover { 
+  background: var(--aa-close-hover-bg, rgba(0,0,0,0.15)) !important; 
+  color: var(--aa-close-hover-text, #111827) !important;
+}
+
+/* Ensure embed panels are visible and centered nicely */
+.aalite-embed .aalite-panel { display: block; margin: 10px auto; }
+
+/* If theme zeroes buttons, make our FAB still visible */
+#aalite-widget .aalite-btn { display: block; }
+
+/* ===============================
+   Enhanced Design tokens with better fallbacks
+   =============================== */
+:root {
+  /* Teal colors */
+  --aa-teal-1: #17a2a2; 
+  --aa-teal-2: #0891b2; 
+  --aa-teal-3: #0e7490;
+  
+  /* Light theme colors with better contrast */
+  --aa-bg: #ffffff; 
+  --aa-bg-soft: #f8fafc; 
+  --aa-panel-bg: rgba(255,255,255,0.95);
+  --aa-panel-border: rgba(0,0,0,0.12);
+  --aa-border: #e5e7eb;
+  --aa-text: #111827; 
+  --aa-text-strong: #000000;
+  --aa-muted: #6b7280;
+  --aa-close-bg: rgba(0,0,0,0.08);
+  --aa-close-text: #374151;
+  --aa-close-hover-bg: rgba(0,0,0,0.15);
+  --aa-close-hover-text: #111827;
+  
+  /* Shadows and effects */
+  --aa-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08);
+  --aa-shadow-soft: 0 6px 24px rgba(0,0,0,0.12);
+  --aa-radius-xl: 20px;
+  --aa-grad: linear-gradient(135deg, var(--aa-teal-1), var(--aa-teal-2));
+  --aa-trans: all .25s cubic-bezier(.22,.61,.36,1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark theme with high contrast */
+    --aa-bg: #0f172a; 
+    --aa-bg-soft: #1e293b; 
+    --aa-panel-bg: rgba(15,23,42,0.95);
+    --aa-panel-border: rgba(255,255,255,0.15);
+    --aa-border: #334155;
+    --aa-text: #f8fafc; 
+    --aa-text-strong: #ffffff;
+    --aa-muted: #94a3b8;
+    --aa-close-bg: rgba(255,255,255,0.10);
+    --aa-close-text: #cbd5e1;
+    --aa-close-hover-bg: rgba(255,255,255,0.20);
+    --aa-close-hover-text: #f8fafc;
+    
+    /* Enhanced shadows for dark mode */
+    --aa-shadow: 0 20px 60px rgba(0,0,0,0.55), 0 6px 20px rgba(0,0,0,0.35);
+    --aa-shadow-soft: 0 10px 28px rgba(0,0,0,0.45);
+  }
+}
+
+/* ===============================
+   Floating positions
+   =============================== */
+#aalite-widget.aalite-pos-bottom-right { position: fixed; right: 20px; bottom: 20px; }
+#aalite-widget.aalite-pos-bottom-left  { position: fixed; left: 20px; bottom: 20px; }
+
+/* ===============================
+   Floating action button (FAB)
+   =============================== */
+#aalite-widget .aalite-btn{
+  width: 60px; height: 60px; border-radius: 50%;
+  background: var(--aa-grad); 
+  box-shadow: var(--aa-shadow-soft);
+  cursor: pointer; position: relative; transition: var(--aa-trans);
+}
+#aalite-widget .aalite-btn::after{
+  content:'✦'; position:absolute; inset:0; display:grid; place-items:center;
+  color: #ffffff !important; /* Ensure white icon on colored background */
+  font-size: 22px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+#aalite-widget .aalite-btn:hover{ transform: translateY(-2px) scale(1.02); }
+#aalite-widget .aalite-btn:active{ transform: translateY(0) scale(.98); }
+
+/* ===============================
+   Panel with improved contrast
+   =============================== */
+#aalite-widget .aalite-panel,
+.aalite-embed .aalite-panel{
+  width: 360px; max-width: 100%; max-height: 70vh;
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--aa-panel-bg);
+  backdrop-filter: saturate(120%) blur(18px);
+  -webkit-backdrop-filter: saturate(120%) blur(18px);
+  border: 1px solid var(--aa-panel-border);
+  border-radius: var(--aa-radius-xl);
+  box-shadow: var(--aa-shadow);
+  color: var(--aa-text) !important;
+}
+
+@media (prefers-color-scheme: dark){
+  #aalite-widget .aalite-panel, .aalite-embed .aalite-panel{
+    background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(11,15,23,0.98));
+    border-color: rgba(255,255,255,0.15) !important;
+  }
+}
+
+/* ===============================
+   Header with better text contrast
+   =============================== */
+.aalite-panel .aalite-head{
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(23,162,162,0.12), rgba(8,145,178,0.08));
+  border-bottom: 1px solid var(--aa-border);
+  color: var(--aa-text) !important;
+}
+.aalite-avatar{ 
+  width: 30px; height: 30px; border-radius: 50%; 
+  object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.15); 
+}
+.aalite-avatar.aa-fallback{ 
+  display: grid; place-items: center; 
+  background: var(--aa-teal-2); 
+  color: #ffffff !important; 
+  font-weight: 700; 
+}
+.aalite-head strong{ 
+  color: var(--aa-text-strong) !important; 
+  letter-spacing: 0.2px; 
+  font-weight: 600;
+}
+
+/* ===============================
+   Body with enhanced message contrast
+   =============================== */
+.aalite-body{ 
+  padding: 14px; overflow: auto; flex: 1; 
+  background: var(--aa-bg); 
+  color: var(--aa-text) !important;
+}
+
+.aa-msg{
+  position: relative; margin: 10px 0; padding: 12px 14px; max-width: 85%;
+  border-radius: 14px; line-height: 1.5; font-size: 14px; 
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  animation: aaPop .18s ease-out;
+}
+
+@keyframes aaPop{ 
+  from { transform: translateY(4px); opacity: 0; } 
+  to { transform: translateY(0); opacity: 1; } 
+}
+
+/* User messages with high contrast */
+.aa-msg.user{ 
+  margin-left: auto; 
+  background: linear-gradient(135deg, #dcfdf7, #a7f3d0); 
+  border: 1px solid #6ee7b7; 
+  color: #064e3b !important;
+}
+
+/* Bot messages with improved readability */
+.aa-msg.bot{ 
+  background: linear-gradient(180deg, var(--aa-bg-soft), #f1f5f9); 
+  border: 1px solid var(--aa-border); 
+  color: var(--aa-text) !important;
+}
+
+/* Dark mode message improvements */
+@media (prefers-color-scheme: dark) {
+  .aa-msg.user {
+    background: linear-gradient(135deg, #064e3b, #065f46);
+    border: 1px solid #059669;
+    color: #d1fae5 !important;
+  }
+  
+  .aa-msg.bot {
+    background: linear-gradient(180deg, var(--aa-bg-soft), #334155);
+    border: 1px solid var(--aa-border);
+    color: var(--aa-text) !important;
+  }
+}
+
+/* Error messages */
+.aa-msg.err{ 
+  background: #fef2f2; 
+  border: 1px solid #fecaca; 
+  color: #991b1b !important; 
+}
+
+@media (prefers-color-scheme: dark) {
+  .aa-msg.err {
+    background: #450a0a;
+    border: 1px solid #7f1d1d;
+    color: #fca5a5 !important;
+  }
+}
+
+/* Code styling with better contrast */
+.aa-msg.bot code, .aa-msg.user code{
+  background: rgba(0,0,0,0.08); 
+  padding: 0.2rem 0.4rem; 
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; 
+  font-size: 12px;
+  color: #1f2937 !important;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .aa-msg.bot code, .aa-msg.user code {
+    background: rgba(255,255,255,0.1);
+    color: #e5e7eb !important;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+}
+
+/* Sources with improved visibility */
+.aa-sources{ 
+  font-size: 12px; 
+  color: var(--aa-muted) !important; 
+  margin-top: 6px; 
+}
+.aa-sources a{ 
+  color: var(--aa-teal-2) !important; 
+  text-decoration: none; 
+  font-weight: 500;
+}
+.aa-sources a:hover{ 
+  text-decoration: underline; 
+  color: var(--aa-teal-1) !important;
+}
+
+/* Typing indicator */
+.aa-typing{ 
+  display: inline-flex; 
+  gap: 4px; 
+  align-items: center; 
+}
+.aa-typing::after{
+  content: ''; width: 32px; height: 6px; border-radius: 6px;
+  background: radial-gradient(var(--aa-muted) 2px, transparent 3px) 0 50%/8px 6px repeat-x;
+  animation: aaDots 1.2s infinite steps(3,start);
+}
+@keyframes aaDots{ to{ transform: translateX(24px); } }
+
+/* ===============================
+   Form with enhanced contrast
+   =============================== */
+.aalite-form{
+  display: flex; gap: 10px; padding: 12px; 
+  border-top: 1px solid var(--aa-border);
+  background: var(--aa-bg-soft);
+}
+
+.aalite-form textarea{
+  flex: 1; min-height: 42px; max-height: 160px; resize: none;
+  padding: 12px 14px; border: 1px solid var(--aa-border);
+  border-radius: 12px; transition: var(--aa-trans); 
+  background: var(--aa-bg) !important; 
+  color: var(--aa-text) !important;
+  font-size: 14px;
+}
+
+.aalite-form textarea::placeholder {
+  color: var(--aa-muted) !important;
+  opacity: 0.8;
+}
+
+.aalite-form textarea:focus{ 
+  outline: none; 
+  border-color: var(--aa-teal-2); 
+  box-shadow: 0 0 0 3px rgba(8,145,178,0.15); 
+}
+
+.aalite-form button{
+  padding: 0 16px; border-radius: 12px; 
+  background: linear-gradient(135deg, #17a2a2, #0891b2);
+  color: #ffffff !important; 
+  border: 0; cursor: pointer; font-weight: 600; 
+  transition: var(--aa-trans); min-width: 86px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.aalite-form button:hover{ 
+  transform: translateY(-1px); 
+  box-shadow: var(--aa-shadow-soft); 
+  background: linear-gradient(135deg, #0891b2, #0e7490);
+}
+
+.aalite-form button:disabled{ 
+  opacity: 0.6; 
+  cursor: not-allowed; 
+  transform: none; 
+}
+
+/* ===============================
+   Small screens
+   =============================== */
+@media (max-width: 480px){
+  #aalite-widget .aalite-panel{ width: calc(100vw - 24px); }
+}
+
+/* ===============================
+   Theme compatibility overrides
+   =============================== */
+#aalite-widget button, .aalite-embed button {
+  line-height: 1 !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+}
+
+#aalite-widget .aalite-btn { 
+  background-clip: padding-box !important; 
+}
+
+#aalite-widget .aalite-close {
+  background-clip: padding-box !important;
+  font-weight: 700 !important;
+}
+
+/* Force text colors in case themes override */
+#aalite-widget * {
+  color: inherit !important;
+}
+
+#aalite-widget .aalite-panel * {
+  color: var(--aa-text) !important;
+}
+
+#aalite-widget .aalite-btn::after,
+#aalite-widget .aalite-form button {
+  color: #ffffff !important;
+}
+
+/* Ensure proper inheritance for nested elements */
+#aalite-widget .aa-msg,
+#aalite-widget .aa-msg *,
+.aalite-embed .aa-msg,
+.aalite-embed .aa-msg * {
+  color: inherit !important;
+}
