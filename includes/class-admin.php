@@ -191,12 +191,12 @@ class Ask_Adam_Lite_Admin {
               <p class="anna-muted"><?php esc_html_e('Ask Adam Lite adds a lightweight AI assistant to your site. It supports a floating chat widget and an optional knowledge base index to answer questions from your own content.', 'ask-adam-lite'); ?></p>
 
               <h3><?php esc_html_e('Quick Start', 'ask-adam-lite'); ?></h3>
-<ol class="anna-list">
-  <li><?php esc_html_e('Open the Assistant tab and add your OpenAI API key (GPT-4o mini is used in Lite).', 'ask-adam-lite'); ?></li>
-  <li><?php esc_html_e('Open the Widget tab to turn the widget On, choose position, and set a friendly assistant name.', 'ask-adam-lite'); ?></li>
-  <li><?php esc_html_e('(Optional) Open the Knowledge Base tab to enter your sitemap URL and a priority URL, then Crawl and Embed.', 'ask-adam-lite'); ?></li>
-  <li><?php esc_html_e('(Optional) Add the shortcode [ask_adam_lite] to any page or post to embed the assistant inline.', 'ask-adam-lite'); ?></li>
-</ol>
+              <ol class="anna-list">
+                <li><?php esc_html_e('Open the Assistant tab and add your OpenAI API key (GPT-4o mini is used in Lite).', 'ask-adam-lite'); ?></li>
+                <li><?php esc_html_e('Open the Widget tab to turn the widget On, choose position, and set a friendly assistant name.', 'ask-adam-lite'); ?></li>
+                <li><?php esc_html_e('(Optional) Open the Knowledge Base tab to enter your sitemap URL and a priority URL, then Crawl and Embed.', 'ask-adam-lite'); ?></li>
+                <li><?php esc_html_e('(Optional) Add the shortcode [ask_adam_lite] to any page or post to embed the assistant inline.', 'ask-adam-lite'); ?></li>
+              </ol>
 
               <h3><?php esc_html_e('What the Plugin Does', 'ask-adam-lite'); ?></h3>
               <ul class="anna-list">
@@ -248,12 +248,8 @@ class Ask_Adam_Lite_Admin {
                 <div>
                   <label class="anna-label"><?php esc_html_e('Enable', 'ask-adam-lite'); ?></label>
                   <select class="anna-select" name="enabled">
-                    <option value="0" <?php selected((int)$w['enabled'], 0); ?>>
-    <?php esc_html_e('Off', 'ask-adam-lite'); ?>
-</option>
-<option value="1" <?php selected((int)$w['enabled'], 1); ?>>
-    <?php esc_html_e('On', 'ask-adam-lite'); ?>
-</option>
+                    <option value="1" <?php selected((int)$w['enabled'], 1); ?>><?php esc_html_e('On', 'ask-adam-lite'); ?></option>
+                    <option value="0" <?php selected((int)$w['enabled'], 0); ?>><?php esc_html_e('Off', 'ask-adam-lite'); ?></option>
                   </select>
                 </div>
                 <div>
@@ -317,17 +313,19 @@ class Ask_Adam_Lite_Admin {
           <!-- Providers (Pro) -->
           <section class="adam-tabpanel" data-panel="providers" hidden>
             <?php
-              echo $this->pro_card(
-                __('Choose the right model for the job and keep costs predictable.', 'ask-adam-lite'),
-                [
-                  __('Multiple providers: OpenAI & Anthropic (Claude), plus custom OpenAI-compatible endpoints', 'ask-adam-lite'),
-                  __('Flagship & mini models to balance comprehensive vs cost-efficient answers', 'ask-adam-lite'),
-                  __('API keys prioritized from wp-config.php (or encrypted DB)', 'ask-adam-lite'),
-                  __('Automatic retries and fallback resilience', 'ask-adam-lite'),
-                ],
-                '<p class="anna-muted" style="margin-top:.75rem;">' .
-                esc_html__('Just need a simple widget without provider controls?', 'ask-adam-lite') . ' ' .
-                '<a href="'.esc_url(self::ANNA_URL).'" target="_blank" rel="noopener">' . esc_html__('See Ask Anna', 'ask-adam-lite') . '</a>.</p>'
+              echo wp_kses_post(
+                  $this->pro_card(
+                      esc_html__('Choose the right model for the job and keep costs predictable.', 'ask-adam-lite'),
+                      [
+                          esc_html__('Multiple providers: OpenAI & Anthropic (Claude), plus custom OpenAI-compatible endpoints', 'ask-adam-lite'),
+                          esc_html__('Flagship & mini models to balance comprehensive vs cost-efficient answers', 'ask-adam-lite'),
+                          esc_html__('API keys prioritized from wp-config.php (or encrypted DB)', 'ask-adam-lite'),
+                          esc_html__('Automatic retries and fallback resilience', 'ask-adam-lite'),
+                      ],
+                      '<p class="anna-muted" style="margin-top:.75rem;">' .
+                      esc_html__('Just need a simple widget without provider controls?', 'ask-adam-lite') . ' ' .
+                      '<a href="' . esc_url(self::ANNA_URL) . '" target="_blank" rel="noopener">' . esc_html__('See Ask Anna', 'ask-adam-lite') . '</a>.</p>'
+                  )
               );
             ?>
           </section>
@@ -335,14 +333,16 @@ class Ask_Adam_Lite_Admin {
           <!-- Web Search (Pro) -->
           <section class="adam-tabpanel" data-panel="web" hidden>
             <?php
-              echo $this->pro_card(
-                __('Blend your Knowledge Base with fresh results and real citations.', 'ask-adam-lite'),
-                [
-                  __('Real-time Brave Search integration', 'ask-adam-lite'),
-                  __('Blended answers: your KB + the live web', 'ask-adam-lite'),
-                  __('Inline citations with titles, favicons, and links', 'ask-adam-lite'),
-                  __('Per-query budgets and safe-mode filters', 'ask-adam-lite'),
-                ]
+              echo wp_kses_post(
+                  $this->pro_card(
+                      esc_html__('Blend your Knowledge Base with fresh results and real citations.', 'ask-adam-lite'),
+                      [
+                          esc_html__('Real-time Brave Search integration', 'ask-adam-lite'),
+                          esc_html__('Blended answers: your KB + the live web', 'ask-adam-lite'),
+                          esc_html__('Inline citations with titles, favicons, and links', 'ask-adam-lite'),
+                          esc_html__('Per-query budgets and safe-mode filters', 'ask-adam-lite'),
+                      ]
+                  )
               );
             ?>
           </section>
@@ -350,13 +350,15 @@ class Ask_Adam_Lite_Admin {
           <!-- Profiles (Pro) -->
           <section class="adam-tabpanel" data-panel="profiles" hidden>
             <?php
-              echo $this->pro_card(
-                __('Set the voice and guardrails of your assistant—once, and reuse anywhere.', 'ask-adam-lite'),
-                [
-                  __('Custom system prompts to control tone and rules', 'ask-adam-lite'),
-                  __('Generation controls (temperature, max tokens, etc.)', 'ask-adam-lite'),
-                  __('Apply profiles globally or via shortcode', 'ask-adam-lite'),
-                ]
+              echo wp_kses_post(
+                  $this->pro_card(
+                      esc_html__('Set the voice and guardrails of your assistant—once, and reuse anywhere.', 'ask-adam-lite'),
+                      [
+                          esc_html__('Custom system prompts to control tone and rules', 'ask-adam-lite'),
+                          esc_html__('Generation controls (temperature, max tokens, etc.)', 'ask-adam-lite'),
+                          esc_html__('Apply profiles globally or via shortcode', 'ask-adam-lite'),
+                      ]
+                  )
               );
             ?>
           </section>
@@ -364,17 +366,19 @@ class Ask_Adam_Lite_Admin {
           <!-- Theme (Pro) -->
           <section class="adam-tabpanel" data-panel="theme" hidden>
             <?php
-              echo $this->pro_card(
-                __('Make the widget match your brand—and remove the Lite watermark.', 'ask-adam-lite'),
-                [
-                  __('Exact HEX color pickers for brand-perfect colors', 'ask-adam-lite'),
-                  __('Larger avatar / brand logo area in the header', 'ask-adam-lite'),
-                  __('Premium polish with smooth SVG accents and scrolling', 'ask-adam-lite'),
-                  __('Brand-safe layout: core shapes and spacing kept consistent', 'ask-adam-lite'),
-                ],
-                '<p class="anna-muted" style="margin-top:.75rem;">' .
-                esc_html__('Prefer a lightweight widget?', 'ask-adam-lite') . ' ' .
-                '<a href="'.esc_url(self::ANNA_URL).'" target="_blank" rel="noopener">' . esc_html__('Learn about Ask Anna', 'ask-adam-lite') . '</a>.</p>'
+              echo wp_kses_post(
+                  $this->pro_card(
+                      esc_html__('Make the widget match your brand—and remove the Lite watermark.', 'ask-adam-lite'),
+                      [
+                          esc_html__('Exact HEX color pickers for brand-perfect colors', 'ask-adam-lite'),
+                          esc_html__('Larger avatar / brand logo area in the header', 'ask-adam-lite'),
+                          esc_html__('Premium polish with smooth SVG accents and scrolling', 'ask-adam-lite'),
+                          esc_html__('Brand-safe layout: core shapes and spacing kept consistent', 'ask-adam-lite'),
+                      ],
+                      '<p class="anna-muted" style="margin-top:.75rem;">' .
+                      esc_html__('Prefer a lightweight widget?', 'ask-adam-lite') . ' ' .
+                      '<a href="' . esc_url(self::ANNA_URL) . '" target="_blank" rel="noopener">' . esc_html__('Learn about Ask Anna', 'ask-adam-lite') . '</a>.</p>'
+                  )
               );
             ?>
           </section>
