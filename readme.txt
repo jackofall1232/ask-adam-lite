@@ -1,5 +1,5 @@
 === Ask Adam Lite ===
-Contributors: jackofall1232, askadam
+Contributors: jackofall1232, ask-adam admin
 Tags: ai, chatbot, assistant, openai
 Requires at least: 5.8
 Tested up to: 6.8
