@@ -10,25 +10,26 @@ class Ask_Adam_Lite_Plugin {
 
     private function __construct() {
         // Includes (runtime)
-        require_once AALITE_DIR.'includes/class-admin.php';
-        require_once AALITE_DIR.'includes/class-widget.php';
-        require_once AALITE_DIR.'includes/class-shortcode.php';
-        require_once AALITE_DIR.'includes/class-api-router.php';
-        require_once AALITE_DIR.'includes/class-logic-handler.php';
-        require_once AALITE_DIR.'includes/class-knowledge-base.php';
+        require_once AALITE_DIR . 'includes/class-admin.php';
+        require_once AALITE_DIR . 'includes/class-widget.php';
+        require_once AALITE_DIR . 'includes/class-shortcode.php';
+        require_once AALITE_DIR . 'includes/class-api-router.php';
+        require_once AALITE_DIR . 'includes/class-logic-handler.php';
+        require_once AALITE_DIR . 'includes/class-knowledge-base.php';
 
         // i18n (avoid load_plugin_textdomain; load MO manually)
         add_action('init', [$this, 'load_textdomain']);
 
-        add_action('wp_enqueue_scripts',   [$this, 'enqueue_front']);
-        add_action('admin_enqueue_scripts',[$this, 'enqueue_admin']);
+        // Front-end assets (conditional)
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_front']);
 
-        add_action('widgets_init', function(){ register_widget('Ask_Adam_Lite_Widget'); });
+        // Register widget
+        add_action('widgets_init', function () { register_widget('Ask_Adam_Lite_Widget'); });
     }
 
     public static function activate() {
         // Ensure KB class is available during activation
-        require_once AALITE_DIR.'includes/class-knowledge-base.php';
+        require_once AALITE_DIR . 'includes/class-knowledge-base.php';
         Ask_Adam_Lite_KB::maybe_install_db();
     }
 
@@ -63,7 +64,7 @@ class Ask_Adam_Lite_Plugin {
 
         // 1) If the floating widget is enabled in settings
         $w = get_option('aalite_widget_settings', []);
-        if (!empty($w) && !empty($w['enabled']) && (int)$w['enabled'] === 1) {
+        if (!empty($w) && !empty($w['enabled']) && (int) $w['enabled'] === 1) {
             $should_enqueue = true;
         }
 
@@ -82,18 +83,12 @@ class Ask_Adam_Lite_Plugin {
             return;
         }
 
-        wp_enqueue_style('aalite-widget', AALITE_URL.'assets/css/widget.css', [], AALITE_VER);
-        wp_enqueue_script('aalite-widget', AALITE_URL.'assets/js/widget.js', ['jquery'], AALITE_VER, true);
+        wp_enqueue_style('aalite-widget', AALITE_URL . 'assets/css/widget.css', [], AALITE_VER);
+        wp_enqueue_script('aalite-widget', AALITE_URL . 'assets/js/widget.js', ['jquery'], AALITE_VER, true);
 
         wp_localize_script('aalite-widget', 'AskAdamLite', [
             'restUrl' => esc_url_raw(rest_url('adam-lite/v1/chat')),
             'nonce'   => wp_create_nonce('wp_rest'),
         ]);
-    }
-
-    public function enqueue_admin($hook) {
-        if ($hook !== 'toplevel_page_ask-adam-lite') return;
-        wp_enqueue_style('aalite-admin', AALITE_URL.'assets/css/admin.css', [], AALITE_VER);
-        wp_enqueue_script('aalite-admin', AALITE_URL.'assets/js/admin.js', [], AALITE_VER, true);
     }
 }
