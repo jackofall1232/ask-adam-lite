@@ -3,37 +3,30 @@ if (!defined('ABSPATH')) exit;
 
 class Ask_Adam_Lite_Widget extends WP_Widget {
 
-    const HANDLE = 'ask-adam-lite-widget'; // script handle for enqueues
-
     public function __construct() {
         parent::__construct('ask_adam_lite_widget', 'Ask Adam Lite');
-
-        // Register an empty script handle we can attach inline JS to.
-        add_action('wp_enqueue_scripts', [$this, 'register_assets']);
-
-        // Render the floating widget at the footer (sidebar-compat remains)
+        // Sidebar compatibility; render floating widget in the footer.
         add_action('wp_footer', [$this, 'render_floating']);
-    }
-
-    /**
-     * Register a bare script handle so we can attach inline JS via wp_add_inline_script
-     * without printing <script> blocks directly in markup.
-     */
-    public function register_assets() {
-        // No external JS file required here—this creates a proper handle.
-        // If you later add a real file, do:
-        // wp_register_script(self::HANDLE, plugins_url('../assets/js/aalite-widget.js', __FILE__), [], '1.0.0', true);
-        wp_register_script(self::HANDLE, '', [], null, true);
     }
 
     public function render_floating() { self::render_floating_static(); }
 
     /**
-     * Ensure our toggle helper is printed only once, and via enqueue API.
+     * Inject a tiny toggle helper once, using the existing 'aalite-widget' handle.
+     * If the handle isn't registered (edge case), register an empty one so we can attach inline JS.
      */
     protected static function ensure_toggle_inline_once() {
         static $added = false;
         if ($added) return;
+
+        // Ensure the handle exists so wp_add_inline_script works.
+        if ( ! wp_script_is('aalite-widget', 'registered') ) {
+            wp_register_script('aalite-widget', '', [], null, true);
+        }
+        // Make sure it will print in the footer.
+        if ( ! wp_script_is('aalite-widget', 'enqueued') ) {
+            wp_enqueue_script('aalite-widget');
+        }
 
         $js = <<<JS
 (function(){
@@ -50,7 +43,7 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
         setTimeout(function(){ try{ ta.focus(); }catch(e){} }, 50);
       }
     } else {
-      panel.setAttribute('hidden', 'hidden');
+      panel.setAttribute('hidden','hidden');
       if(fab){
         fab.setAttribute('aria-expanded', 'false');
         try{ fab.focus(); }catch(e){}
@@ -58,11 +51,10 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
     }
   };
 
-  // ESC key support to close any open panel
+  // ESC closes any open panel
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape') {
-      var openPanels = document.querySelectorAll('.aalite-panel:not([hidden])');
-      openPanels.forEach(function(panel){
+      document.querySelectorAll('.aalite-panel:not([hidden])').forEach(function(panel){
         var widget = panel.closest('[data-aalite-id]');
         if (widget) {
           var uuid = widget.getAttribute('data-aalite-id');
@@ -74,8 +66,8 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
 })();
 JS;
 
-        // Attach BEFORE the (empty) handle to ensure global is defined early.
-        wp_add_inline_script(self::HANDLE, $js, 'before');
+        // Attach BEFORE main widget file so global is available early.
+        wp_add_inline_script('aalite-widget', $js, 'before');
         $added = true;
     }
 
@@ -99,19 +91,15 @@ JS;
         $avatar_url     = (string) $w['avatar_url'];
         $display_name   = $assistant_name . ' • Free Version';
 
-        // Initial (fallback avatar)
+        // Fallback avatar initial
         $initial = '';
         if ($assistant_name !== '') {
             $initial = strtoupper((function_exists('mb_substr') ? mb_substr($assistant_name, 0, 1) : substr($assistant_name, 0, 1)));
         }
 
-        // Enqueue our script handle and inject the toggle helper once.
-        wp_enqueue_script(self::HANDLE);
-        // Because this is a static method, call the helper via the class name:
-        if (method_exists(__CLASS__, 'ensure_toggle_inline_once')) {
-            // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-            call_user_func([__CLASS__, 'ensure_toggle_inline_once']);
-        }
+        // Ensure our inline helper is present and the main handle is enqueued
+        self::ensure_toggle_inline_once();
+        wp_enqueue_script('aalite-widget'); // idempotent; safe if already enqueued
 
         // Unique token for this instance (keeps CSS/JS id hooks intact)
         $uuid = wp_generate_uuid4();
@@ -125,7 +113,7 @@ JS;
                   aria-expanded="false"
                   onclick="AALiteToggle('<?php echo esc_js($uuid); ?>', true)"></button>
 
-          <!-- Pro-style Panel (scoped classes + Lite hooks) -->
+          <!-- Panel -->
           <div class="aalite-panel anna-panel" hidden>
             <!-- Header -->
             <div class="aalite-head anna-head">
@@ -150,12 +138,10 @@ JS;
                       onclick="AALiteToggle('<?php echo esc_js($uuid); ?>', false)">×</button>
             </div>
 
-            <!-- Conversation body (Lite hook retained) -->
-            <div class="aalite-body anna-body"
-                 role="log"
-                 aria-live="polite"></div>
+            <!-- Conversation body -->
+            <div class="aalite-body anna-body" role="log" aria-live="polite"></div>
 
-            <!-- Composer (Lite hook retained) -->
+            <!-- Composer -->
             <form class="aalite-form anna-form" method="dialog" onsubmit="return false">
               <div class="anna-input-wrap">
                 <textarea class="anna-textarea" required
@@ -163,24 +149,20 @@ JS;
                           maxlength="2000"
                           aria-label="<?php echo esc_attr__('Your message', 'ask-adam-lite'); ?>"></textarea>
                 <button class="anna-send" type="submit" aria-label="<?php echo esc_attr__('Send', 'ask-adam-lite'); ?>">
-                  <!-- Inline paper plane icon (generic, accessible, no external deps) -->
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    width="20" height="20"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true" focusable="false">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                       width="20" height="20" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                       aria-hidden="true" focusable="false">
                     <path d="M22 2 11 13" />
                     <path d="M22 2 15 22 11 13 2 9 22 2z" />
                   </svg>
                 </button>
               </div>
               <div class="anna-footnote">
-                <span class="anna-muted"><?php echo esc_html__('Powered by GPT-4o mini • ', 'ask-adam-lite'); ?><em><?php echo esc_html__('Ask Adam Lite-Free', 'ask-adam-lite'); ?></em></span>
+                <span class="anna-muted">
+                  <?php echo esc_html__('Powered by GPT-4o mini • ', 'ask-adam-lite'); ?>
+                  <em><?php echo esc_html__('Ask Adam Lite-Free', 'ask-adam-lite'); ?></em>
+                </span>
               </div>
             </form>
 
