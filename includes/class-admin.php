@@ -2,8 +2,8 @@
 if (!defined('ABSPATH')) exit;
 
 class Ask_Adam_Lite_Admin {
-    const PRO_URL   = 'https://www.askadamit.com';      // Pro landing
-    const ANNA_URL  = 'https://askadamit.com/anna/';    // Ask Anna landing
+    const PRO_URL  = 'https://www.askadamit.com';   // Pro landing
+    const ANNA_URL = 'https://askadamit.com/anna/'; // Ask Anna landing
 
     /** Local (in-page) notices buffer */
     private $local_notices = [];
@@ -11,7 +11,7 @@ class Ask_Adam_Lite_Admin {
     public function __construct() {
         add_action('admin_menu', [$this, 'menu']);
         add_action('admin_init', [$this, 'maybe_save']);
-        add_action('admin_enqueue_scripts', [$this, 'admin_styles']);
+        add_action('admin_enqueue_scripts', [$this, 'admin_assets']);
     }
 
     public function menu() {
@@ -27,27 +27,64 @@ class Ask_Adam_Lite_Admin {
     }
 
     /**
-     * Enqueue admin styles only on our admin page
+     * Enqueue admin CSS/JS only on our admin page.
+     * (Reviewer-friendly: no inline <script>, uses enqueue API.)
      */
-    public function admin_styles($hook) {
+    public function admin_assets($hook) {
         if ($hook !== 'toplevel_page_ask-adam-lite') {
             return;
         }
 
-        // Enqueue your admin CSS file
+        // CSS
         $css_path = plugin_dir_path(dirname(__FILE__)) . 'assets/css/adam-admin.css';
         $css_url  = plugin_dir_url(dirname(__FILE__)) . 'assets/css/adam-admin.css';
-        $css_ver  = file_exists($css_path) ? filemtime($css_path) : '1.0.0';
+        $css_ver  = file_exists($css_path) ? (string) filemtime($css_path) : '1.0.1';
+        wp_register_style('ask-adam-lite-admin', $css_url, [], $css_ver);
+        wp_enqueue_style('ask-adam-lite-admin');
 
-        wp_enqueue_style('ask-adam-lite-admin', $css_url, [], $css_ver);
+        // JS (optional, handles tab UI without inline <script>)
+        $js_path = plugin_dir_path(dirname(__FILE__)) . 'assets/js/admin.js';
+        $js_url  = plugin_dir_url(dirname(__FILE__)) . 'assets/js/admin.js';
+        $js_ver  = file_exists($js_path) ? (string) filemtime($js_path) : '1.0.1';
+
+        // If you don't have a file yet, this still creates a proper handle for inline.
+        if (file_exists($js_path)) {
+            wp_register_script('ask-adam-lite-admin', $js_url, ['jquery'], $js_ver, true);
+        } else {
+            wp_register_script('ask-adam-lite-admin', '', ['jquery'], $js_ver, true);
+        }
+        wp_enqueue_script('ask-adam-lite-admin');
+
+        // Minimal inline (attached via enqueue API) to switch tabs; no <script> echoes.
+        $inline = <<<JS
+(function(){
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('.adam-tab'); if(!b) return;
+    e.preventDefault();
+    var wrap = document.querySelector('.wrap.adam-admin'); if(!wrap) return;
+
+    // toggle active state
+    wrap.querySelectorAll('.adam-tab').forEach(function(t){ t.classList.remove('is-active'); });
+    b.classList.add('is-active');
+
+    // show matching panel
+    var k = b.getAttribute('data-tab');
+    wrap.querySelectorAll('.adam-tabpanel').forEach(function(p){
+      if (p.getAttribute('data-panel') === k) { p.removeAttribute('hidden'); }
+      else { p.setAttribute('hidden','hidden'); }
+    });
+  }, {passive:true});
+})();
+JS;
+        wp_add_inline_script('ask-adam-lite-admin', $inline, 'after');
     }
 
     private function get_api_key() {
-        if (defined('AALITE_OPENAI_API_KEY') && trim((string)constant('AALITE_OPENAI_API_KEY')) !== '') {
-            return trim((string)constant('AALITE_OPENAI_API_KEY'));
+        if (defined('AALITE_OPENAI_API_KEY') && trim((string) constant('AALITE_OPENAI_API_KEY')) !== '') {
+            return trim((string) constant('AALITE_OPENAI_API_KEY'));
         }
         $opt = get_option('aalite_api_settings', []);
-        return (string)($opt['openai'] ?? '');
+        return (string) ($opt['openai'] ?? '');
     }
 
     /** Handle form posts for Lite settings only */
@@ -59,7 +96,8 @@ class Ask_Adam_Lite_Admin {
         // Save Assistant
         if (isset($_POST['save_assistant'])) {
             $api = get_option('aalite_api_settings', []);
-            $api['openai'] = sanitize_text_field(wp_unslash($_POST['openai'] ?? ''));
+            $api_key = isset($_POST['openai']) ? wp_unslash($_POST['openai']) : '';
+            $api['openai'] = sanitize_text_field($api_key);
             update_option('aalite_api_settings', $api);
             $this->add_admin_notice(__('Settings saved.', 'ask-adam-lite'), 'updated');
         }
@@ -67,10 +105,16 @@ class Ask_Adam_Lite_Admin {
         // Save Widget
         if (isset($_POST['save_widget'])) {
             $w = get_option('aalite_widget_settings', []);
-            $w['enabled']        = (int) ($_POST['enabled'] ?? 0);
-            $w['position']       = in_array(($_POST['position'] ?? ''), ['bottom-right','bottom-left'], true) ? $_POST['position'] : 'bottom-right';
-            $w['assistant_name'] = sanitize_text_field($_POST['assistant_name'] ?? 'Adam');
-            $w['avatar_url']     = esc_url_raw($_POST['avatar_url'] ?? '');
+            $enabled  = isset($_POST['enabled']) ? wp_unslash($_POST['enabled']) : 0;
+            $position = isset($_POST['position']) ? wp_unslash($_POST['position']) : 'bottom-right';
+            $name     = isset($_POST['assistant_name']) ? wp_unslash($_POST['assistant_name']) : 'Adam';
+            $avatar   = isset($_POST['avatar_url']) ? wp_unslash($_POST['avatar_url']) : '';
+
+            $w['enabled']        = (int) $enabled;
+            $w['position']       = in_array($position, ['bottom-right','bottom-left'], true) ? $position : 'bottom-right';
+            $w['assistant_name'] = sanitize_text_field($name);
+            $w['avatar_url']     = esc_url_raw($avatar);
+
             update_option('aalite_widget_settings', $w);
             $this->add_admin_notice(__('Widget saved.', 'ask-adam-lite'), 'updated');
         }
@@ -79,8 +123,11 @@ class Ask_Adam_Lite_Admin {
         if (isset($_POST['save_kb']) || isset($_POST['kb_repair']) || isset($_POST['kb_purge']) || isset($_POST['kb_crawl']) || isset($_POST['kb_embed'])) {
             $kb = get_option('aalite_kb_settings', []);
             if (isset($_POST['save_kb'])) {
-                $kb['sitemap_url']  = esc_url_raw($_POST['sitemap_url'] ?? '');
-                $kb['priority_url'] = esc_url_raw($_POST['priority_url'] ?? '');
+                $sitemap  = isset($_POST['sitemap_url']) ? wp_unslash($_POST['sitemap_url']) : '';
+                $priority = isset($_POST['priority_url']) ? wp_unslash($_POST['priority_url']) : '';
+
+                $kb['sitemap_url']  = esc_url_raw($sitemap);
+                $kb['priority_url'] = esc_url_raw($priority);
                 update_option('aalite_kb_settings', $kb);
                 $this->add_admin_notice(__('KB settings saved.', 'ask-adam-lite'), 'updated');
             }
@@ -150,7 +197,7 @@ class Ask_Adam_Lite_Admin {
         <div class="wrap adam-admin is-light">
           <!-- WordPress/global notices from core/other plugins will appear above this .wrap automatically -->
 
-          <!-- Hero section using your CSS structure -->
+          <!-- Hero -->
           <section class="adam-hero" aria-label="Ask Adam Lite">
             <div class="adam-hero__inner">
               <div class="adam-hero__brand">
@@ -167,7 +214,6 @@ class Ask_Adam_Lite_Admin {
             </div>
           </section>
 
-          <!-- Local (plugin-only) notices: render inside our page, after hero -->
           <?php $this->show_admin_notices(); ?>
 
           <!-- Tabs nav -->
@@ -184,7 +230,7 @@ class Ask_Adam_Lite_Admin {
             </ul>
           </nav>
 
-          <!-- Overview (default visible) -->
+          <!-- Overview -->
           <section class="adam-tabpanel" data-panel="overview">
             <div class="anna-card">
               <h2><?php esc_html_e('Overview', 'ask-adam-lite'); ?></h2>
@@ -221,7 +267,7 @@ class Ask_Adam_Lite_Admin {
             </div>
           </section>
 
-          <!-- Assistant (hidden by default now that Overview is first) -->
+          <!-- Assistant -->
           <section class="adam-tabpanel" data-panel="assistant" hidden>
             <form method="post" class="anna-card">
               <?php wp_nonce_field('aalite_save'); ?>
