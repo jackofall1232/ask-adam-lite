@@ -2,12 +2,82 @@
 if (!defined('ABSPATH')) exit;
 
 class Ask_Adam_Lite_Widget extends WP_Widget {
+
+    const HANDLE = 'ask-adam-lite-widget'; // script handle for enqueues
+
     public function __construct() {
         parent::__construct('ask_adam_lite_widget', 'Ask Adam Lite');
-        add_action('wp_footer', [$this, 'render_floating']); // sidebar compat; also renders floating
+
+        // Register an empty script handle we can attach inline JS to.
+        add_action('wp_enqueue_scripts', [$this, 'register_assets']);
+
+        // Render the floating widget at the footer (sidebar-compat remains)
+        add_action('wp_footer', [$this, 'render_floating']);
+    }
+
+    /**
+     * Register a bare script handle so we can attach inline JS via wp_add_inline_script
+     * without printing <script> blocks directly in markup.
+     */
+    public function register_assets() {
+        // No external JS file required here—this creates a proper handle.
+        // If you later add a real file, do:
+        // wp_register_script(self::HANDLE, plugins_url('../assets/js/aalite-widget.js', __FILE__), [], '1.0.0', true);
+        wp_register_script(self::HANDLE, '', [], null, true);
     }
 
     public function render_floating() { self::render_floating_static(); }
+
+    /**
+     * Ensure our toggle helper is printed only once, and via enqueue API.
+     */
+    protected static function ensure_toggle_inline_once() {
+        static $added = false;
+        if ($added) return;
+
+        $js = <<<JS
+(function(){
+  window.AALiteToggle = function(uuid, open){
+    var el = document.querySelector('[data-aalite-id="'+ uuid +'"]'); if(!el) return;
+    var panel = el.querySelector('.aalite-panel'); if(!panel) return;
+    var fab = el.querySelector('.aalite-btn');
+
+    if(open){
+      panel.removeAttribute('hidden');
+      if(fab) fab.setAttribute('aria-expanded', 'true');
+      var ta = panel.querySelector('textarea');
+      if(ta){
+        setTimeout(function(){ try{ ta.focus(); }catch(e){} }, 50);
+      }
+    } else {
+      panel.setAttribute('hidden', 'hidden');
+      if(fab){
+        fab.setAttribute('aria-expanded', 'false');
+        try{ fab.focus(); }catch(e){}
+      }
+    }
+  };
+
+  // ESC key support to close any open panel
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') {
+      var openPanels = document.querySelectorAll('.aalite-panel:not([hidden])');
+      openPanels.forEach(function(panel){
+        var widget = panel.closest('[data-aalite-id]');
+        if (widget) {
+          var uuid = widget.getAttribute('data-aalite-id');
+          if (uuid) { AALiteToggle(uuid, false); }
+        }
+      });
+    }
+  });
+})();
+JS;
+
+        // Attach BEFORE the (empty) handle to ensure global is defined early.
+        wp_add_inline_script(self::HANDLE, $js, 'before');
+        $added = true;
+    }
 
     public static function render_floating_static() {
         // Defaults + merge to avoid missing keys disabling the widget
@@ -35,51 +105,13 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
             $initial = strtoupper((function_exists('mb_substr') ? mb_substr($assistant_name, 0, 1) : substr($assistant_name, 0, 1)));
         }
 
-        // Enhanced toggle helper with better error handling
-        static $printed_toggle = false;
-        if (!$printed_toggle) {
-            $printed_toggle = true; ?>
-            <script>
-            (function(){
-              window.AALiteToggle = function(uuid, open){
-                var el = document.querySelector('[data-aalite-id="'+ uuid +'"]'); if(!el) return;
-                var panel = el.querySelector('.aalite-panel'); if(!panel) return;
-                var fab = el.querySelector('.aalite-btn');
-
-                if(open){
-                  panel.removeAttribute('hidden');
-                  if(fab) fab.setAttribute('aria-expanded', 'true');
-                  var ta = panel.querySelector('textarea');
-                  if(ta) {
-                    setTimeout(function() {
-                      try{ ta.focus(); }catch(e){}
-                    }, 50);
-                  }
-                } else {
-                  panel.setAttribute('hidden','hidden');
-                  if(fab) {
-                    fab.setAttribute('aria-expanded', 'false');
-                    fab.focus();
-                  }
-                }
-              };
-
-              // ESC key support
-              document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                  var openPanels = document.querySelectorAll('.aalite-panel:not([hidden])');
-                  openPanels.forEach(function(panel) {
-                    var widget = panel.closest('[data-aalite-id]');
-                    if (widget) {
-                      var uuid = widget.getAttribute('data-aalite-id');
-                      AALiteToggle(uuid, false);
-                    }
-                  });
-                }
-              });
-            })();
-            </script>
-        <?php }
+        // Enqueue our script handle and inject the toggle helper once.
+        wp_enqueue_script(self::HANDLE);
+        // Because this is a static method, call the helper via the class name:
+        if (method_exists(__CLASS__, 'ensure_toggle_inline_once')) {
+            // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+            call_user_func([__CLASS__, 'ensure_toggle_inline_once']);
+        }
 
         // Unique token for this instance (keeps CSS/JS id hooks intact)
         $uuid = wp_generate_uuid4();
