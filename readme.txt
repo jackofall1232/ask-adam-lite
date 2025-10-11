@@ -79,7 +79,9 @@ This plugin connects to the OpenAI API to provide AI-generated chat responses an
 = 1.0.1 =
 * Added contributor **jackofall1232**.
 * Documented required OpenAI API usage for compliance with WordPress.org guidelines.
-* Updated widget JavaScript handling to use `wp_enqueue_script` and `wp_add_inline_script`.
+* Updated widget JavaScript handling to use `wp_enqueue_script` and `wp_add_inline_script` (no inline `<script>` in markup).
+* **Admin:** Assets now enqueued via `admin_enqueue_scripts` with a registered handle (no inline `<script>`).
+* **Security/Compliance:** Settings saves now use `wp_unslash()` before `sanitize_text_field()` / `esc_url_raw()`.
 * General cleanup and code review compliance fixes.
 
 = 1.0.0 =
