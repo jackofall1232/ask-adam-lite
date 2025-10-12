@@ -329,7 +329,7 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
               <?php wp_nonce_field('aalite_save'); ?>
               <input type="hidden" name="_aalite_flag" value="1">
               <h2><?php esc_html_e('Knowledge Base (Lite)', 'ask-adam-lite'); ?></h2>
-              <p class="anna-hint"><?php esc_html_e('Lite indexes the first sitemap URL and the first priority URL. Caps: 50 pages, 300 chunks.', 'ask-adam-lite'); ?></p>
+              <p class="anna-hint"><?php esc_html_e('Lite indexes the first sitemap URL and the first priority URL. Caps: 50 pages, 300 chunks. Upgrade to Pro for upto 10 priority URL and 300 pages!', 'ask-adam-lite'); ?></p>
 
               <label class="anna-label"><?php esc_html_e('Sitemap URL', 'ask-adam-lite'); ?></label>
               <input class="anna-input" type="url" name="sitemap_url" value="<?php echo esc_url($kb['sitemap_url']); ?>" placeholder="https://example.com/sitemap.xml">
@@ -374,7 +374,7 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
                   $this->pro_card(
                       esc_html__('Blend your Knowledge Base with fresh results and real citations.', 'ask-adam-lite'),
                       [
-                          esc_html__('Real-time Brave Search integration', 'ask-adam-lite'),
+                          esc_html__('Real-time Brave Search integration or EXA Nural search', 'ask-adam-lite'),
                           esc_html__('Blended answers: your KB + the live web', 'ask-adam-lite'),
                           esc_html__('Inline citations with titles, favicons, and links', 'ask-adam-lite'),
                           esc_html__('Per-query budgets and safe-mode filters', 'ask-adam-lite'),
