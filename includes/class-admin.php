@@ -47,35 +47,16 @@ class Ask_Adam_Lite_Admin {
         $js_url  = plugin_dir_url(dirname(__FILE__)) . 'assets/js/admin.js';
         $js_ver  = file_exists($js_path) ? (string) filemtime($js_path) : '1.0.1';
 
-        // If you don't have a file yet, this still creates a proper handle for inline.
         if (file_exists($js_path)) {
             wp_register_script('ask-adam-lite-admin', $js_url, ['jquery'], $js_ver, true);
         } else {
+            // Create a handle so inline can attach even if file is absent.
             wp_register_script('ask-adam-lite-admin', '', ['jquery'], $js_ver, true);
         }
         wp_enqueue_script('ask-adam-lite-admin');
 
-        // Minimal inline (attached via enqueue API) to switch tabs; no <script> echoes.
-        $inline = <<<JS
-(function(){
-  document.addEventListener('click', function(e){
-    var b = e.target.closest('.adam-tab'); if(!b) return;
-    e.preventDefault();
-    var wrap = document.querySelector('.wrap.adam-admin'); if(!wrap) return;
-
-    // toggle active state
-    wrap.querySelectorAll('.adam-tab').forEach(function(t){ t.classList.remove('is-active'); });
-    b.classList.add('is-active');
-
-    // show matching panel
-    var k = b.getAttribute('data-tab');
-    wrap.querySelectorAll('.adam-tabpanel').forEach(function(p){
-      if (p.getAttribute('data-panel') === k) { p.removeAttribute('hidden'); }
-      else { p.setAttribute('hidden','hidden'); }
-    });
-  }, {passive:true});
-})();
-JS;
+        // Minimal inline JS as a normal string (no heredoc/nowdoc).
+        $inline = '(function(){document.addEventListener("click",function(e){var b=e.target.closest(".adam-tab");if(!b){return;}e.preventDefault();var wrap=document.querySelector(".wrap.adam-admin");if(!wrap){return;}wrap.querySelectorAll(".adam-tab").forEach(function(t){t.classList.remove("is-active");});b.classList.add("is-active");var k=b.getAttribute("data-tab");wrap.querySelectorAll(".adam-tabpanel").forEach(function(p){if(p.getAttribute("data-panel")===k){p.removeAttribute("hidden");}else{p.setAttribute("hidden","hidden");}});},{passive:true});})();';
         wp_add_inline_script('ask-adam-lite-admin', $inline, 'after');
     }
 
@@ -89,61 +70,70 @@ JS;
 
     /** Handle form posts for Lite settings only */
     public function maybe_save() {
-        if (!is_admin() || !isset($_POST['_aalite_flag'])) return;
-        if (!current_user_can('manage_options')) return;
-        if (!check_admin_referer('aalite_save')) return;
+        if (!is_admin() || !isset($_POST['_aalite_flag'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            return;
+        }
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        if (!check_admin_referer('aalite_save')) {
+            return;
+        }
 
         // Save Assistant
-        if (isset($_POST['save_assistant'])) {
+        if (isset($_POST['save_assistant'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $api_key = isset($_POST['openai']) ? sanitize_text_field( wp_unslash($_POST['openai']) ) : '';
             $api = get_option('aalite_api_settings', []);
-            $api_key = isset($_POST['openai']) ? wp_unslash($_POST['openai']) : '';
-            $api['openai'] = sanitize_text_field($api_key);
+            $api['openai'] = $api_key;
             update_option('aalite_api_settings', $api);
             $this->add_admin_notice(__('Settings saved.', 'ask-adam-lite'), 'updated');
         }
 
         // Save Widget
-        if (isset($_POST['save_widget'])) {
-            $w = get_option('aalite_widget_settings', []);
-            $enabled  = isset($_POST['enabled']) ? wp_unslash($_POST['enabled']) : 0;
-            $position = isset($_POST['position']) ? wp_unslash($_POST['position']) : 'bottom-right';
-            $name     = isset($_POST['assistant_name']) ? wp_unslash($_POST['assistant_name']) : 'Adam';
-            $avatar   = isset($_POST['avatar_url']) ? wp_unslash($_POST['avatar_url']) : '';
+if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+    $enabled_raw   = isset($_POST['enabled']) ? sanitize_text_field( wp_unslash($_POST['enabled']) ) : 0;
+    $position_raw  = isset($_POST['position']) ? sanitize_text_field( wp_unslash($_POST['position']) ) : 'bottom-right';
+    $name_raw      = isset($_POST['assistant_name']) ? sanitize_text_field( wp_unslash($_POST['assistant_name']) ) : 'Adam';
+    $avatar_raw    = isset($_POST['avatar_url']) ? esc_url_raw( wp_unslash($_POST['avatar_url']) ) : '';
 
-            $w['enabled']        = (int) $enabled;
-            $w['position']       = in_array($position, ['bottom-right','bottom-left'], true) ? $position : 'bottom-right';
-            $w['assistant_name'] = sanitize_text_field($name);
-            $w['avatar_url']     = esc_url_raw($avatar);
+    $enabled  = (int) $enabled_raw;
+    $position = in_array($position_raw, ['bottom-right','bottom-left'], true) ? $position_raw : 'bottom-right';
 
-            update_option('aalite_widget_settings', $w);
-            $this->add_admin_notice(__('Widget saved.', 'ask-adam-lite'), 'updated');
-        }
+    $w = get_option('aalite_widget_settings', []);
+    $w['enabled']        = $enabled;
+    $w['position']       = $position;
+    $w['assistant_name'] = $name_raw;
+    $w['avatar_url']     = $avatar_raw;
+
+    update_option('aalite_widget_settings', $w);
+    $this->add_admin_notice(__('Widget saved.', 'ask-adam-lite'), 'updated');
+}
 
         // Save KB + actions
-        if (isset($_POST['save_kb']) || isset($_POST['kb_repair']) || isset($_POST['kb_purge']) || isset($_POST['kb_crawl']) || isset($_POST['kb_embed'])) {
-            $kb = get_option('aalite_kb_settings', []);
-            if (isset($_POST['save_kb'])) {
-                $sitemap  = isset($_POST['sitemap_url']) ? wp_unslash($_POST['sitemap_url']) : '';
-                $priority = isset($_POST['priority_url']) ? wp_unslash($_POST['priority_url']) : '';
+        if (isset($_POST['save_kb']) || isset($_POST['kb_repair']) || isset($_POST['kb_purge']) || isset($_POST['kb_crawl']) || isset($_POST['kb_embed'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            if (isset($_POST['save_kb'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+                $sitemap  = isset($_POST['sitemap_url'])  ? esc_url_raw( wp_unslash($_POST['sitemap_url']) )   : '';
+                $priority = isset($_POST['priority_url']) ? esc_url_raw( wp_unslash($_POST['priority_url']) )  : '';
 
-                $kb['sitemap_url']  = esc_url_raw($sitemap);
-                $kb['priority_url'] = esc_url_raw($priority);
+                $kb = get_option('aalite_kb_settings', []);
+                $kb['sitemap_url']  = $sitemap;
+                $kb['priority_url'] = $priority;
                 update_option('aalite_kb_settings', $kb);
                 $this->add_admin_notice(__('KB settings saved.', 'ask-adam-lite'), 'updated');
             }
-            if (isset($_POST['kb_repair'])) {
+            if (isset($_POST['kb_repair'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
                 Ask_Adam_Lite_KB::maybe_install_db();
                 $this->add_admin_notice(__('KB tables checked.', 'ask-adam-lite'), 'updated');
             }
-            if (isset($_POST['kb_purge'])) {
+            if (isset($_POST['kb_purge'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
                 Ask_Adam_Lite_KB::purge_index();
                 $this->add_admin_notice(__('KB purged.', 'ask-adam-lite'), 'updated');
             }
-            if (isset($_POST['kb_crawl'])) {
+            if (isset($_POST['kb_crawl'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
                 Ask_Adam_Lite_KB::crawl_from_settings();
                 $this->add_admin_notice(__('Crawl finished.', 'ask-adam-lite'), 'updated');
             }
-            if (isset($_POST['kb_embed'])) {
+            if (isset($_POST['kb_embed'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
                 Ask_Adam_Lite_KB::embed_pending();
                 $this->add_admin_notice(__('Embedding finished.', 'ask-adam-lite'), 'updated');
             }
@@ -165,8 +155,9 @@ JS;
      * Display local notices
      */
     private function show_admin_notices() {
-        if (empty($this->local_notices)) return;
-
+        if (empty($this->local_notices)) {
+            return;
+        }
         foreach ($this->local_notices as $n) {
             printf(
                 '<div class="%s" style="margin-top:12px;"><p>%s</p></div>',
