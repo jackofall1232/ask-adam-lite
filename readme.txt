@@ -1,10 +1,10 @@
 === Ask Adam Lite ===
-Contributors: jackofall1232, ask-adam admin
+Contributors: jackofall1232
 Tags: ai, chatbot, assistant, openai
 Requires at least: 5.8
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,7 +37,7 @@ If you want to expand with multiple AI providers, real-time web search, advanced
 == Frequently Asked Questions ==
 
 = Do I need an OpenAI account? =
-Yes. You’ll need your own OpenAI API key (no other account required).
+Yes. You'll need your own OpenAI API key (no other account required).
 
 = Does Ask Adam Lite work without Pro? =
 Yes. Lite is a standalone product. It gives you a working chat widget and a small knowledge base with no external services beyond your OpenAI key.
@@ -76,13 +76,21 @@ This plugin connects to the OpenAI API to provide AI-generated chat responses an
 
 == Changelog ==
 
+= 1.0.2 =
+* **Security/Compliance:** Sanitized all `$_POST` and `$_SERVER` inputs with proper `wp_unslash()` and validation.
+* **Database:** Added proper `phpcs:ignore` documentation for custom table queries with clear explanations.
+* **Widget:** Fixed heredoc syntax issues - now using output buffering for inline JavaScript.
+* **Enqueue:** Added version parameter (`AALITE_VER`) to all script registrations.
+* **Code Quality:** Resolved all WordPress Coding Standards warnings flagged by Plugin Check.
+* **Uninstall:** Properly documented schema changes during plugin cleanup.
+* Tested with WP_DEBUG enabled on clean WordPress installation.
+
 = 1.0.1 =
-* Added contributor **jackofall1232**.
-* Documented required OpenAI API usage for compliance with WordPress.org guidelines.
-* Updated widget JavaScript handling to use `wp_enqueue_script` and `wp_add_inline_script` (no inline `<script>` in markup).
-* **Admin:** Assets now enqueued via `admin_enqueue_scripts` with a registered handle (no inline `<script>`).
-* **Security/Compliance:** Settings saves now use `wp_unslash()` before `sanitize_text_field()` / `esc_url_raw()`.
-* General cleanup and code review compliance fixes.
+* Added contributor **jackofall1232** to readme.
+* Improved shortcode rendering and output escaping.
+* Updated widget JavaScript handling to use `wp_enqueue_script` and `wp_add_inline_script`.
+* Admin assets now properly enqueued via `admin_enqueue_scripts`.
+* General code cleanup for WordPress.org compliance.
 
 = 1.0.0 =
 * Initial release.
