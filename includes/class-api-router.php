@@ -22,12 +22,15 @@ class Ask_Adam_Lite_API {
                 }
 
                 // Basic rate limiting per IP (5-minute window)
-                $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+                // PHPCS: unslash then sanitize before use.
+                $raw_ip = isset($_SERVER['REMOTE_ADDR']) ? wp_unslash($_SERVER['REMOTE_ADDR']) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+                $ip     = sanitize_text_field($raw_ip);
+
                 if (!function_exists('rest_is_ip_address') || !rest_is_ip_address($ip)) {
                     $ip = '0.0.0.0';
                 }
 
-                $key = 'aalite_rl_' . md5($ip);
+                $key   = 'aalite_rl_' . md5($ip);
                 $count = (int) get_transient($key);
 
                 // 30 requests per 5 minutes per IP (adjust to taste)
@@ -99,7 +102,6 @@ class Ask_Adam_Lite_API {
 
         $out = Ask_Adam_Lite_Logic::answer($prompt);
         if (is_wp_error($out)) {
-            // Ensure WP_Error is returned as a REST error
             return $out;
         }
 
