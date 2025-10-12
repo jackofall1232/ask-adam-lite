@@ -21,14 +21,18 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
 
         // Ensure the handle exists so wp_add_inline_script works.
         if ( ! wp_script_is('aalite-widget', 'registered') ) {
-            wp_register_script('aalite-widget', '', [], null, true);
+            // Provide a version to satisfy WPCS (avoid browser cache issues).
+            $ver = defined('AALITE_VER') ? AALITE_VER : '1.0.0';
+            wp_register_script('aalite-widget', '', [], $ver, true);
         }
         // Make sure it will print in the footer.
         if ( ! wp_script_is('aalite-widget', 'enqueued') ) {
             wp_enqueue_script('aalite-widget');
         }
 
-        $js = <<<JS
+        // Build inline JS without heredoc/nowdoc.
+        ob_start();
+        ?>
 (function(){
   window.AALiteToggle = function(uuid, open){
     var el = document.querySelector('[data-aalite-id="'+ uuid +'"]'); if(!el) return;
@@ -64,7 +68,8 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
     }
   });
 })();
-JS;
+        <?php
+        $js = (string) ob_get_clean();
 
         // Attach BEFORE main widget file so global is available early.
         wp_add_inline_script('aalite-widget', $js, 'before');
