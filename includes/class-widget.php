@@ -30,24 +30,24 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
                 const fab=el.querySelector(".aalite-btn");
                 if(!panel||!fab)return;
 
-                const isCurrentlyOpen = panel.classList.contains("visible");
-                if(open === undefined) { open = !isCurrentlyOpen; }
+                const isOpen = panel.classList.contains("visible");
+                if(open===undefined){open=!isOpen;}
 
-                if(open && !isCurrentlyOpen){
+                if(open&&!isOpen){
                     panel.classList.add("visible");
-                    fab.setAttribute("aria-expanded","true");
                     fab.classList.add("is-open");
-                } else if(!open && isCurrentlyOpen){
+                    fab.setAttribute("aria-expanded","true");
+                } else if(!open&&isOpen){
                     panel.classList.remove("visible");
-                    fab.setAttribute("aria-expanded","false");
                     fab.classList.remove("is-open");
+                    fab.setAttribute("aria-expanded","false");
                 }
             };
             document.addEventListener("keydown",e=>{
                 if(e.key==="Escape"){
                     document.querySelectorAll(".aalite-panel.visible").forEach(p=>{
                         const w=p.closest("[data-aalite-id]");
-                        if(w){AALiteToggle(w.getAttribute("data-aalite-id"),false);}
+                        if(w)AALiteToggle(w.getAttribute("data-aalite-id"),false);
                     });
                 }
             });
@@ -75,7 +75,7 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
         $display_name   = $assistant_name . ' • ASK ADAM LITE';
         $initial        = strtoupper(function_exists('mb_substr') ? mb_substr($assistant_name ?: 'A', 0, 1) : substr($assistant_name ?: 'A', 0, 1));
 
-        // Compute FAB inline style to force correct side
+        // Inline FAB positioning
         $side_is_left = ($w['position'] === 'bottom-left');
         $fab_style = 'position:fixed;bottom:20px;'
                    . ($side_is_left ? 'left:20px;right:auto;' : 'right:20px;left:auto;')
@@ -107,13 +107,13 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
 
             <div class="aalite-body anna-body aa-scrollbar">
               <div class="aa-placeholder">
-                👋 Hi, I'm <?php echo esc_html($assistant_name); ?>! How can I help you today?
+                Hi, I'm <?php echo esc_html($assistant_name); ?>! How can I help you today?
               </div>
             </div>
 
             <form class="aalite-form anna-form pro-input" onsubmit="return false">
               <div class="anna-input-wrap">
-                <textarea class="anna-textarea" placeholder="<?php echo esc_attr__('Type your message…', 'ask-adam-lite'); ?>" maxlength="2000"></textarea>
+                <textarea class="anna-textarea" placeholder="<?php echo esc_attr__('Type your message...', 'ask-adam-lite'); ?>" maxlength="2000"></textarea>
                 <button class="anna-send glowing" type="submit" aria-label="Send message">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                        width="20" height="20" stroke="currentColor" fill="none"
@@ -122,13 +122,10 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
                   </svg>
                 </button>
               </div>
-              <div class="anna-footnote subtle">
-                <small>Powered by GPT-4o mini • <a href="https://askadamit.com" target="_blank" rel="noopener">Upgrade to Pro</a></small>
-              </div>
             </form>
           </div>
 
-          <!-- Floating Button (toggle open/close) -->
+          <!-- Floating Button -->
           <button class="aalite-btn anna-fab pro-gradient"
                   type="button"
                   style="<?php echo esc_attr($fab_style); ?>"
@@ -136,26 +133,22 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
                   aria-expanded="false"
                   onclick="AALiteToggle('<?php echo esc_js($uuid); ?>')">
               <span class="fab-glow"></span>
-              <!-- Plus icon when closed -->
               <svg class="fab-icon fab-icon-plus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2.5" stroke-linecap="round">
                   <circle cx="12" cy="12" r="10"/>
                   <path d="M8 12h8M12 8v8"/>
               </svg>
-              <!-- X icon when open -->
               <svg class="fab-icon fab-icon-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2.5" stroke-linecap="round">
                   <path d="M18 6L6 18M6 6l12 12"/>
               </svg>
           </button>
         </div>
         <style>
-        /* Anchor the container; panel gets side margin so it doesn't sit under FAB */
         #aalite-widget.aalite-pos-bottom-right { position: fixed; right: 20px; bottom: 20px; }
         #aalite-widget.aalite-pos-bottom-left  { position: fixed; left: 20px;  bottom: 20px; }
 
         #aalite-widget.aalite-pos-bottom-right .aalite-panel { margin-right: 76px; }
         #aalite-widget.aalite-pos-bottom-left  .aalite-panel { margin-left:  76px; }
 
-        /* Panel visibility */
         .aa-pro-ui .aalite-panel {
             opacity: 0;
             transform: translateY(20px) scale(0.95);
@@ -163,21 +156,15 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
             transition: opacity .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
         }
         .aa-pro-ui .aalite-panel.visible {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            pointer-events: all;
+            opacity: 1; transform: translateY(0) scale(1); pointer-events: all;
         }
-
         .aa-pro-ui .glassy {
             background: rgba(25,25,35,.95);
             backdrop-filter: blur(16px) saturate(180%);
             border-radius: 20px;
             border: 1px solid rgba(255,255,255,.1);
             box-shadow: 0 8px 40px rgba(0,0,0,.5);
-            overflow: hidden;
         }
-
-        /* FAB visuals (positioning is inline via PHP) */
         .aa-pro-ui .aalite-btn {
             width:64px; height:64px; border-radius:50%;
             display:flex; align-items:center; justify-content:center;
@@ -189,43 +176,33 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
         }
         .aa-pro-ui .aalite-btn:hover { transform:scale(1.08) rotate(5deg); box-shadow:0 6px 30px rgba(0,255,200,.6); }
         .aa-pro-ui .aalite-btn:active { transform: scale(1.02); }
-
         .aa-pro-ui .fab-icon { position:absolute; transition: opacity .3s, transform .3s; }
-        .aa-pro-ui .fab-icon-plus  { opacity:1; transform: rotate(0deg)   scale(1); }
-        .aa-pro-ui .fab-icon-close { opacity:0; transform: rotate(90deg)  scale(.8); }
+        .aa-pro-ui .fab-icon-plus  { opacity:1; transform: rotate(0deg) scale(1); }
+        .aa-pro-ui .fab-icon-close { opacity:0; transform: rotate(90deg) scale(.8); }
         .aa-pro-ui .aalite-btn.is-open .fab-icon-plus  { opacity:0; transform: rotate(-90deg) scale(.8); }
-        .aa-pro-ui .aalite-btn.is-open .fab-icon-close { opacity:1; transform: rotate(0deg)   scale(1); }
-
-        .aa-pro-ui .aalite-btn.is-open {
-            background: linear-gradient(135deg,#ff6b6b,#ff8e53);
-            box-shadow:0 6px 30px rgba(255,107,107,.5);
-        }
-
-        .aa-pro-ui .pro-shadow { box-shadow:0 0 15px rgba(0,255,255,.35); border-radius:50%; }
-        .aa-pro-ui .aa-placeholder { text-align:center; padding:2rem 1.5rem; color:#d0d0d0; font-style:italic; font-size: 15px; }
+        .aa-pro-ui .aalite-btn.is-open .fab-icon-close { opacity:1; transform: rotate(0deg) scale(1); }
+        .aa-pro-ui .aalite-btn.is-open { background: linear-gradient(135deg,#ff6b6b,#ff8e53); box-shadow:0 6px 30px rgba(255,107,107,.5); }
+        .aa-pro-ui .aa-placeholder { text-align:center; padding:2rem 1.5rem; color:#d0d0d0; font-style:italic; font-size:15px; }
         .aa-pro-ui .anna-textarea {
-            background:#0d1117; color:#fff; border:1px solid #2d2f35; border-radius:14px; padding:12px 16px;
-            resize:none; font-size:14px; line-height:1.5; min-height:44px; transition: border-color .2s, box-shadow .2s;
+            background:#0d1117; color:#fff; border:1px solid #2d2f35;
+            border-radius:14px; padding:12px 16px; resize:none; font-size:14px;
+            line-height:1.5; min-height:44px; transition:border-color .2s, box-shadow .2s;
         }
         .aa-pro-ui .anna-textarea:focus { outline:none; border-color:#00d9ff; box-shadow:0 0 0 3px rgba(0,217,255,.15); }
         .aa-pro-ui .glowing {
-            background:linear-gradient(90deg,#00d9ff,#00f5a0); border:none; border-radius:12px; color:#fff;
-            padding:12px; cursor:pointer; transition: opacity .2s, transform .2s;
+            background:linear-gradient(90deg,#00d9ff,#00f5a0); border:none;
+            border-radius:12px; color:#fff; padding:12px; cursor:pointer;
+            transition: opacity .2s, transform .2s;
         }
         .aa-pro-ui .glowing:hover { opacity:.9; transform: scale(1.05); }
         .aa-pro-ui .glowing:active { transform: scale(0.98); }
-        .aa-pro-ui .anna-footnote.subtle { text-align:center; margin-top:10px; color:#999; font-size:12px; }
-        .aa-pro-ui .anna-footnote.subtle a { color:#00d9ff; text-decoration:none; transition: color .2s; }
-        .aa-pro-ui .anna-footnote.subtle a:hover { color:#00f5a0; text-decoration: underline; }
-
         .aa-pro-ui .sleek {
-            padding: 18px 20px;
-            background: linear-gradient(135deg, rgba(0,245,160,.15), rgba(0,217,255,.15));
-            border-bottom: 1px solid rgba(255,255,255,.08);
+            padding:18px 20px;
+            background:linear-gradient(135deg,rgba(0,245,160,.15),rgba(0,217,255,.15));
+            border-bottom:1px solid rgba(255,255,255,.08);
         }
-        .aa-pro-ui .anna-title { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: 0.3px; }
-        .aa-pro-ui .anna-subtitle { font-size: 13px; color: rgba(255,255,255,.65); }
-
+        .aa-pro-ui .anna-title { font-size:16px; font-weight:600; color:#fff; letter-spacing:.3px; }
+        .aa-pro-ui .anna-subtitle { font-size:13px; color:rgba(255,255,255,.65); }
         .aa-pro-ui .anna-input-wrap { display:flex; gap:10px; align-items:flex-end; }
         </style>
         <?php
