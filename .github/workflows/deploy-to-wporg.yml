@@ -3,7 +3,8 @@ name: Deploy to WordPress.org
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'   # only deploy on semver tags like 1.0.3
+      - '[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch: {}
 
 jobs:
   deploy:
@@ -29,10 +30,10 @@ jobs:
           fi
 
       - name: Deploy to WordPress.org
-        uses: 10up/action-wordpress-plugin-deploy@v1.5.0
+        uses: 10up/action-wordpress-plugin-deploy@stable
         with:
           slug: ask-adam-lite
-          assets-dir: .wordpress-org   # remove this line if you don't have an assets folder
+          assets-dir: .wordpress-org
         env:
           SVN_USERNAME: ${{ secrets.WPORG_USERNAME }}
           SVN_PASSWORD: ${{ secrets.WPORG_PASSWORD }}
