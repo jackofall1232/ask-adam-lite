@@ -2,17 +2,17 @@
 /**
  * Plugin Name:       Ask Adam Lite
  * Description:       Free AI chat widget + mini knowledge base (1 sitemap + 1 priority URL) using OpenAI.
- * Version:           1.0.4
+ * Version:           1.0.5
  * Author:            Ask Adam
  * Text Domain:       ask-adam-lite
  * Requires at least: 5.8
- * Tested up to:      6.8
+ * Tested up to:      6.9
  * Requires PHP:      7.4
  * License:           GPLv2 or later
  */
 if (!defined('ABSPATH')) exit;
 
-define('AALITE_VER',  '1.0.4');
+define('AALITE_VER',  '1.0.5');
 define('AALITE_FILE', __FILE__);
 define('AALITE_DIR',  plugin_dir_path(__FILE__));
 define('AALITE_URL',  plugin_dir_url(__FILE__));
