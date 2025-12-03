@@ -2,9 +2,9 @@
 Contributors: jackofall1232
 Tags: ai, chatbot, assistant, openai
 Requires at least: 5.8
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,10 @@ The plugin is compatible with WordPress privacy guidelines and GDPR when used re
 
 == Changelog ==
 
+= 1.0.5 =
+* Compatibility: Fully tested with WordPress 6.9.
+* Maintenance: General cleanup and version bump for WP.org.
+
 = 1.0.4 =
 * Assets: Added WordPress.org banner and icon.
 * Deployment: Added GitHub Actions workflow for automatic WP.org deployment.
@@ -111,5 +115,5 @@ The plugin is compatible with WordPress privacy guidelines and GDPR when used re
 
 == Upgrade Notice ==
 
-= 1.0.4 =
-Adds WordPress.org banner/icon and automated deployment. Minor UI polish.
+= 1.0.5 =
+Tested for compatibility with WordPress 6.9. Recommended update for all users.
