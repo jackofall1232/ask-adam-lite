@@ -417,7 +417,19 @@ class Ask_Adam_Lite_KB {
             $updated++;
         }
 
-        if ( $updated > 0 ) {
+        // Only record the indexed model when no unembedded chunks remain.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+        $remaining = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM `{$T2}` WHERE embedding IS NULL OR embedding = '' LIMIT %d",
+                1
+            )
+        );
+        // phpcs:enable
+
+        if ( 0 === $remaining ) {
             Ask_Adam_Lite_Model_Config::set_indexed_embedding_model( $embedding_model );
         }
 

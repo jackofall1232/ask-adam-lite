@@ -37,9 +37,36 @@ class Ask_Adam_Lite_Plugin {
     }
 
     public static function activate() {
+        require_once AALITE_DIR . 'includes/class-model-config.php';
         // Ensure KB class is available during activation
         require_once AALITE_DIR.'includes/class-knowledge-base.php';
         Ask_Adam_Lite_KB::maybe_install_db();
+
+        // Migration: backfill aalite_kb_indexed_embedding_model for sites that
+        // had the KB indexed before this option existed.
+        // If chunks exist in the DB but the option is empty, we know those
+        // chunks were built with the old hardcoded default.
+        $indexed_model = get_option( 'aalite_kb_indexed_embedding_model', '' );
+        if ( '' === trim( (string) $indexed_model ) ) {
+            global $wpdb;
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+            $chunk_count = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    'SELECT COUNT(*) FROM `' . esc_sql( $wpdb->prefix . 'aalite_kb_chunks' ) . '`
+                     WHERE embedding IS NOT NULL AND embedding <> %s LIMIT %d',
+                    '',
+                    1
+                )
+            );
+            // phpcs:enable
+            if ( $chunk_count > 0 ) {
+                update_option(
+                    'aalite_kb_indexed_embedding_model',
+                    Ask_Adam_Lite_Model_Config::DEFAULT_EMBEDDING_MODEL
+                );
+            }
+        }
     }
 
     /**
