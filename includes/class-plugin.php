@@ -91,7 +91,7 @@ class Ask_Adam_Lite_Plugin {
     public function load_textdomain() {
         $domain = AALITE_TD;
         $locale = determine_locale();
-        $locale = apply_filters('plugin_locale', $locale, $domain);
+        $locale = apply_filters( 'plugin_locale', $locale, $domain ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core WP filter, not plugin-defined.
 
         // Prefer global languages: wp-content/languages/plugins/ask-adam-lite-xx_XX.mo
         $global_mo = trailingslashit(WP_LANG_DIR) . 'plugins/' . $domain . '-' . $locale . '.mo';

@@ -174,7 +174,7 @@ class Ask_Adam_Lite_Logic {
 			$safe_msg = (string) ( $body['error']['message'] ?? '' );
 			if ( '' === $safe_msg ) {
 				$excerpt = preg_replace( '/\s+/', ' ', mb_substr( $raw, 0, 200 ) );
-				/* translators: 1: HTTP status code, 2: short excerpt of the response body */
+				// translators: 1: HTTP status code, 2: short excerpt of the response body.
 				$safe_msg = sprintf( __( 'HTTP %1$d: %2$s', 'ask-adam-lite' ), $code, $excerpt );
 			}
 			return new WP_Error( 'aalite_openai_http', $safe_msg, [ 'status' => $code ] );
