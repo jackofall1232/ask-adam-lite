@@ -100,12 +100,15 @@ class Ask_Adam_Lite_Model_Config {
 	 * @return string Trimmed output text, or empty string if not found.
 	 */
 	public static function normalize_openai_output( array $body ): string {
-		// Responses API shorthand.
+		// 1. Responses API shorthand.
 		if ( isset( $body['output_text'] ) && is_string( $body['output_text'] ) ) {
-			return trim( $body['output_text'] );
+			$trimmed = trim( $body['output_text'] );
+			if ( '' !== $trimmed ) {
+				return $trimmed;
+			}
 		}
 
-		// Responses API full structure.
+		// 2. Responses API full structure.
 		if ( isset( $body['output'] ) && is_array( $body['output'] ) ) {
 			foreach ( $body['output'] as $output_item ) {
 				if ( ! is_array( $output_item ) ) {
@@ -115,14 +118,25 @@ class Ask_Adam_Lite_Model_Config {
 					continue;
 				}
 				foreach ( $output_item['content'] as $content_block ) {
-					if ( isset( $content_block['text'] ) && is_string( $content_block['text'] ) ) {
-						return trim( $content_block['text'] );
+					if ( ! is_array( $content_block ) ) {
+						continue;
+					}
+					if (
+						isset( $content_block['type'] ) &&
+						'output_text' === $content_block['type'] &&
+						isset( $content_block['text'] ) &&
+						is_string( $content_block['text'] )
+					) {
+						$trimmed = trim( $content_block['text'] );
+						if ( '' !== $trimmed ) {
+							return $trimmed;
+						}
 					}
 				}
 			}
 		}
 
-		// Chat Completions legacy format.
+		// 3. Chat Completions legacy format.
 		if (
 			isset( $body['choices'][0]['message']['content'] ) &&
 			is_string( $body['choices'][0]['message']['content'] )
