@@ -335,24 +335,25 @@ class Ask_Adam_Lite_KB {
                 $doc_id = (int)$wpdb->insert_id;
             }
 
-            foreach (self::chunk_text($res['text']) as $ch) {
-                // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                $total = (int) $wpdb->get_var(
-                    $wpdb->prepare("SELECT COUNT(*) FROM `{$T2}` WHERE 1 = %d", 1)
-                );
-                // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                
-                if ($total >= self::MAX_CHUNKS) break 2;
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $total = (int) $wpdb->get_var(
+                $wpdb->prepare( "SELECT COUNT(*) FROM `{$T2}` WHERE 1 = %d", 1 )
+            );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+            foreach ( self::chunk_text( $res['text'] ) as $ch ) {
+                if ( $total >= self::MAX_CHUNKS ) break 2;
 
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table insert.
-                $wpdb->insert($T2, [
-                    'doc_id'      => (int)$doc_id,
-                    'chunk_index' => (int)$ch['index'],
+                $wpdb->insert( $T2, [
+                    'doc_id'      => (int) $doc_id,
+                    'chunk_index' => (int) $ch['index'],
                     'content'     => $ch['content'],
                     'embedding'   => null,
-                    'tokens'      => (int)$ch['tokens'],
-                    'created_at'  => current_time('mysql')
-                ]);
+                    'tokens'      => (int) $ch['tokens'],
+                    'created_at'  => current_time( 'mysql' ),
+                ] );
+                $total++;
             }
 
             $added++;

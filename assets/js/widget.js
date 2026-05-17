@@ -25,7 +25,7 @@
         'Content-Type': 'application/json',
         'X-WP-Nonce': nonce
       },
-      body: JSON.stringify({ prompt: String(prompt || '').slice(0, 8000) })
+      body: JSON.stringify({ prompt: String(prompt || '').slice(0, 2000) })
     });
     let data = null;
     try { data = await res.json(); } catch (_e) {}

@@ -36,8 +36,8 @@ class Ask_Adam_Lite_Admin {
         }
 
         // CSS
-        $css_path = plugin_dir_path(dirname(__FILE__)) . 'assets/css/adam-admin.css';
-        $css_url  = plugin_dir_url(dirname(__FILE__)) . 'assets/css/adam-admin.css';
+        $css_path = plugin_dir_path(dirname(__FILE__)) . 'assets/css/admin.css';
+        $css_url  = plugin_dir_url(dirname(__FILE__)) . 'assets/css/admin.css';
         $css_ver  = file_exists($css_path) ? (string) filemtime($css_path) : '1.0.1';
         wp_register_style('ask-adam-lite-admin', $css_url, [], $css_ver);
         wp_enqueue_style('ask-adam-lite-admin');
@@ -235,7 +235,7 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
 
               <h3><?php esc_html_e('Quick Start', 'ask-adam-lite'); ?></h3>
               <ol class="anna-list">
-                <li><?php esc_html_e('Open the Assistant tab and add your OpenAI API key (GPT-4o mini is used in Lite).', 'ask-adam-lite'); ?></li>
+                <li><?php esc_html_e('Open the Assistant tab and add your OpenAI API key.', 'ask-adam-lite'); ?></li>
                 <li><?php esc_html_e('Open the Widget tab to turn the widget On, choose position, and set a friendly assistant name.', 'ask-adam-lite'); ?></li>
                 <li><?php esc_html_e('(Optional) Open the Knowledge Base tab to enter your sitemap URL and a priority URL, then Crawl and Embed.', 'ask-adam-lite'); ?></li>
                 <li><?php esc_html_e('(Optional) Add the shortcode [ask_adam_lite] to any page or post to embed the assistant inline.', 'ask-adam-lite'); ?></li>
@@ -251,7 +251,7 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
               <h3><?php esc_html_e('Lite vs Pro (at a glance)', 'ask-adam-lite'); ?></h3>
               <ul class="anna-list">
                 <li><strong><?php esc_html_e('Lite:', 'ask-adam-lite'); ?></strong>
-                  <?php esc_html_e('OpenAI (GPT-4o mini), basic widget controls, single sitemap + priority URL, KB caps (≈50 pages / 300 chunks).', 'ask-adam-lite'); ?>
+                  <?php esc_html_e('OpenAI (GPT-4o mini default, upgradeable), basic widget controls, single sitemap + priority URL, KB caps (≈50 pages / 300 chunks).', 'ask-adam-lite'); ?>
                 </li>
                 <li><strong><?php esc_html_e('Pro:', 'ask-adam-lite'); ?></strong>
                   <?php esc_html_e('Multiple providers, profiles, theme controls, optional web search, larger KB limits, Image analysis in the shortcode,  and no Lite watermark.', 'ask-adam-lite'); ?>
@@ -270,7 +270,7 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
               <?php wp_nonce_field('aalite_save'); ?>
               <input type="hidden" name="_aalite_flag" value="1">
               <h2><?php esc_html_e('Assistant (OpenAI only)', 'ask-adam-lite'); ?></h2>
-              <p class="anna-hint"><?php esc_html_e('Lite uses GPT-4o mini only.', 'ask-adam-lite'); ?></p>
+              <p class="anna-hint"><?php esc_html_e('Lite defaults to GPT-4o mini. GPT-5 models are supported — change the model via the aalite_reasoning_model option.', 'ask-adam-lite'); ?></p>
 
               <label class="anna-label"><?php esc_html_e('OpenAI API Key', 'ask-adam-lite'); ?></label>
               <input class="anna-input" type="password" name="openai" value="<?php echo esc_attr($this->get_api_key()); ?>" placeholder="sk-...">

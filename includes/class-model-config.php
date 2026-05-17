@@ -34,7 +34,7 @@ class Ask_Adam_Lite_Model_Config {
 	 * @return string
 	 */
 	public static function get_reasoning_model(): string {
-		$model = get_option( 'aalite_reasoning_model', '' );
+		$model = trim( (string) get_option( 'aalite_reasoning_model', '' ) );
 		return ( '' !== $model ) ? $model : self::DEFAULT_REASONING_MODEL;
 	}
 
@@ -44,7 +44,7 @@ class Ask_Adam_Lite_Model_Config {
 	 * @return string
 	 */
 	public static function get_vision_model(): string {
-		$model = get_option( 'aalite_vision_model', '' );
+		$model = trim( (string) get_option( 'aalite_vision_model', '' ) );
 		return ( '' !== $model ) ? $model : self::DEFAULT_VISION_MODEL;
 	}
 
@@ -54,7 +54,7 @@ class Ask_Adam_Lite_Model_Config {
 	 * @return string
 	 */
 	public static function get_intent_model(): string {
-		$model = get_option( 'aalite_intent_model', '' );
+		$model = trim( (string) get_option( 'aalite_intent_model', '' ) );
 		return ( '' !== $model ) ? $model : self::DEFAULT_INTENT_MODEL;
 	}
 
@@ -64,7 +64,7 @@ class Ask_Adam_Lite_Model_Config {
 	 * @return string
 	 */
 	public static function get_embedding_model(): string {
-		$model = get_option( 'aalite_embedding_model', '' );
+		$model = trim( (string) get_option( 'aalite_embedding_model', '' ) );
 		return ( '' !== $model ) ? $model : self::DEFAULT_EMBEDDING_MODEL;
 	}
 
