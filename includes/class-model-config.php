@@ -75,7 +75,7 @@ class Ask_Adam_Lite_Model_Config {
 	 * @return bool
 	 */
 	public static function use_responses_api( string $model ): bool {
-		return str_starts_with( $model, 'gpt-5' );
+		return strpos( $model, 'gpt-5' ) === 0;
 	}
 
 	/**
