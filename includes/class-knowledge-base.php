@@ -384,36 +384,41 @@ class Ask_Adam_Lite_KB {
 
         if (!$key) return 0;
 
-        $inputs = array_map(function($r){ return (string)$r['content']; }, $rows);
+        $inputs          = array_map( function( $r ) { return (string) $r['content']; }, $rows );
+        $embedding_model = Ask_Adam_Lite_Model_Config::get_embedding_model();
 
-        $resp = wp_remote_post('https://api.openai.com/v1/embeddings', [
+        $resp = wp_remote_post( Ask_Adam_Lite_Model_Config::ENDPOINT_EMBEDDINGS, [
             'timeout' => 20,
             'headers' => [
-                'Authorization' => 'Bearer '.$key,
+                'Authorization' => 'Bearer ' . $key,
                 'Content-Type'  => 'application/json',
                 'User-Agent'    => self::ua(),
             ],
-            'body' => wp_json_encode([
-                'model' => 'text-embedding-3-small',
-                'input' => $inputs
-            ]),
-        ]);
+            'body' => wp_json_encode( [
+                'model' => $embedding_model,
+                'input' => $inputs,
+            ] ),
+        ] );
 
-        if (is_wp_error($resp)) return 0;
-        $code = wp_remote_retrieve_response_code($resp);
-        if ($code !== 200) return 0;
+        if ( is_wp_error( $resp ) ) return 0;
+        $code = wp_remote_retrieve_response_code( $resp );
+        if ( $code !== 200 ) return 0;
 
-        $body = json_decode(wp_remote_retrieve_body($resp), true);
+        $body = json_decode( wp_remote_retrieve_body( $resp ), true );
         $vecs = $body['data'] ?? null;
-        if (!is_array($vecs)) return 0;
+        if ( ! is_array( $vecs ) ) return 0;
 
         $updated = 0;
-        foreach ($rows as $i => $r) {
-            if (!isset($vecs[$i]['embedding']) || !is_array($vecs[$i]['embedding'])) continue;
-            $emb = wp_json_encode($vecs[$i]['embedding']);
+        foreach ( $rows as $i => $r ) {
+            if ( ! isset( $vecs[ $i ]['embedding'] ) || ! is_array( $vecs[ $i ]['embedding'] ) ) continue;
+            $emb = wp_json_encode( $vecs[ $i ]['embedding'] );
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table update for embeddings.
-            $wpdb->update($T2, ['embedding' => $emb], ['id' => (int)$r['id']]);
+            $wpdb->update( $T2, [ 'embedding' => $emb ], [ 'id' => (int) $r['id'] ] );
             $updated++;
+        }
+
+        if ( $updated > 0 ) {
+            Ask_Adam_Lite_Model_Config::set_indexed_embedding_model( $embedding_model );
         }
 
         return $updated;
@@ -432,18 +437,18 @@ class Ask_Adam_Lite_KB {
 
         if (!$key) return ['context'=>'','sources'=>[]];
 
-        $resp = wp_remote_post('https://api.openai.com/v1/embeddings', [
+        $resp = wp_remote_post( Ask_Adam_Lite_Model_Config::ENDPOINT_EMBEDDINGS, [
             'timeout' => 12,
             'headers' => [
-                'Authorization' => 'Bearer '.$key,
+                'Authorization' => 'Bearer ' . $key,
                 'Content-Type'  => 'application/json',
                 'User-Agent'    => self::ua(),
             ],
-            'body' => wp_json_encode([
-                'model' => 'text-embedding-3-small',
-                'input' => (string)$query
-            ]),
-        ]);
+            'body' => wp_json_encode( [
+                'model' => Ask_Adam_Lite_Model_Config::get_embedding_model(),
+                'input' => (string) $query,
+            ] ),
+        ] );
         if (is_wp_error($resp)) return ['context'=>'','sources'=>[]];
 
         $code = wp_remote_retrieve_response_code($resp);
