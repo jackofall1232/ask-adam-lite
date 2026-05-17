@@ -147,6 +147,7 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
           <button class="aalite-btn anna-fab pro-gradient"
                   type="button"
                   style="<?php echo esc_attr($fab_style); ?>"
+                  // translators: %s: Assistant name, e.g. "Adam".
                   aria-label="<?php echo esc_attr( sprintf( __( 'Toggle %s chat', 'ask-adam-lite' ), $assistant_name ) ); ?>"
                   aria-expanded="false">
               <span class="fab-glow"></span>
