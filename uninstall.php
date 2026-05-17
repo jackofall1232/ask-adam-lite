@@ -42,7 +42,7 @@ global $wpdb;
 $aalite_chunks_table = esc_sql( $wpdb->prefix . 'aalite_kb_chunks' );
 $aalite_docs_table   = esc_sql( $wpdb->prefix . 'aalite_kb_docs' );
 
-// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Dropping custom tables during uninstall.
-$wpdb->query( "DROP TABLE IF EXISTS `{$aalite_chunks_table}`" );
-// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Dropping custom tables during uninstall.
-$wpdb->query( "DROP TABLE IF EXISTS `{$aalite_docs_table}`" );
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Dropping custom tables on uninstall.
+$wpdb->query( 'DROP TABLE IF EXISTS `' . $aalite_chunks_table . '`' );
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Dropping custom tables on uninstall.
+$wpdb->query( 'DROP TABLE IF EXISTS `' . $aalite_docs_table . '`' );
