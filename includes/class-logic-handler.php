@@ -88,14 +88,19 @@ class Ask_Adam_Lite_Logic {
 			];
 		} else {
 			$request_body = [
-				'model'       => $model,
-				'messages'    => [
+				'model'    => $model,
+				'messages' => [
 					[ 'role' => 'system', 'content' => $system_content ],
 					[ 'role' => 'user',   'content' => $user_content ],
 				],
-				'temperature' => 0.7,
-				'max_tokens'  => self::MAX_TOKENS,
 			];
+			if ( Ask_Adam_Lite_Model_Config::is_reasoning_model( $model ) ) {
+				// o1/o3 models reject temperature and use max_completion_tokens.
+				$request_body['max_completion_tokens'] = self::MAX_TOKENS;
+			} else {
+				$request_body['temperature'] = 0.7;
+				$request_body['max_tokens']  = self::MAX_TOKENS;
+			}
 		}
 
 		$args = [

@@ -79,6 +79,17 @@ class Ask_Adam_Lite_Model_Config {
 	}
 
 	/**
+	 * Returns true for o1/o3 reasoning models that use Chat Completions but
+	 * reject temperature and require max_completion_tokens instead of max_tokens.
+	 *
+	 * @param string $model Model identifier string.
+	 * @return bool
+	 */
+	public static function is_reasoning_model( string $model ): bool {
+		return strpos( $model, 'o1' ) === 0 || strpos( $model, 'o3' ) === 0;
+	}
+
+	/**
 	 * Returns the appropriate OpenAI endpoint for the given model.
 	 *
 	 * @param string $model Model identifier string.
