@@ -146,7 +146,7 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
           <!-- Floating Button -->
           <?php
           // translators: %s: Assistant name, e.g. "Adam".
-          $fab_aria_label = esc_attr( sprintf( __( 'Toggle %s chat', 'ask-adam-lite' ), $assistant_name ) );
+          $fab_aria_label = sprintf( __( 'Toggle %s chat', 'ask-adam-lite' ), $assistant_name );
           ?>
           <button class="aalite-btn anna-fab pro-gradient"
                   type="button"

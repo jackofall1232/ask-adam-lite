@@ -42,7 +42,7 @@ global $wpdb;
 $aalite_chunks_table = esc_sql( $wpdb->prefix . 'aalite_kb_chunks' );
 $aalite_docs_table   = esc_sql( $wpdb->prefix . 'aalite_kb_docs' );
 
-// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- DROP TABLE is a DDL statement; prepare() does not support schema changes. Table name sanitized via esc_sql().
-$wpdb->query( 'DROP TABLE IF EXISTS `' . $aalite_chunks_table . '`' ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- DROP TABLE is a DDL statement; prepare() does not support schema changes. Table name sanitized via esc_sql().
-$wpdb->query( 'DROP TABLE IF EXISTS `' . $aalite_docs_table . '`' ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Table name identifiers cannot be parameterized with placeholders; name sanitized via esc_sql().
+$wpdb->query( 'DROP TABLE IF EXISTS `' . $aalite_chunks_table . '`' );
+// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Table name identifiers cannot be parameterized with placeholders; name sanitized via esc_sql().
+$wpdb->query( 'DROP TABLE IF EXISTS `' . $aalite_docs_table . '`' );
