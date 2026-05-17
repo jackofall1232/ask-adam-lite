@@ -29,6 +29,21 @@ class Ask_Adam_Lite_Plugin {
         add_action('widgets_init', function(){ register_widget('Ask_Adam_Lite_Widget'); });
     }
 
+    /**
+     * Localization data shared by the floating widget and the shortcode.
+     * Single source of truth for the `AskAdamLite` JS global.
+     */
+    public static function get_widget_l10n() {
+        return [
+            'restUrl'          => esc_url_raw( rest_url( 'adam-lite/v1/chat' ) ),
+            'nonce'            => wp_create_nonce( 'wp_rest' ),
+            'attachLabel'      => esc_html__( 'Attach image', 'ask-adam-lite' ),
+            'removeLabel'      => esc_html__( 'Remove image', 'ask-adam-lite' ),
+            'imageTooLarge'    => esc_html__( 'Image must be under 5MB.', 'ask-adam-lite' ),
+            'imageInvalidType' => esc_html__( 'Only JPEG, PNG, GIF, and WebP images are supported.', 'ask-adam-lite' ),
+        ];
+    }
+
     private static function register_default_options() {
         add_option( 'aalite_reasoning_model',  Ask_Adam_Lite_Model_Config::DEFAULT_REASONING_MODEL );
         add_option( 'aalite_vision_model',     Ask_Adam_Lite_Model_Config::DEFAULT_VISION_MODEL );
@@ -122,14 +137,7 @@ class Ask_Adam_Lite_Plugin {
         wp_enqueue_style('aalite-widget', AALITE_URL.'assets/css/widget.css', [], AALITE_VER);
         wp_enqueue_script('aalite-widget', AALITE_URL.'assets/js/widget.js', [], AALITE_VER, true);
 
-        wp_localize_script( 'aalite-widget', 'AskAdamLite', [
-            'restUrl'          => esc_url_raw( rest_url( 'adam-lite/v1/chat' ) ),
-            'nonce'            => wp_create_nonce( 'wp_rest' ),
-            'attachLabel'      => esc_html__( 'Attach image', 'ask-adam-lite' ),
-            'removeLabel'      => esc_html__( 'Remove image', 'ask-adam-lite' ),
-            'imageTooLarge'    => esc_html__( 'Image must be under 5MB.', 'ask-adam-lite' ),
-            'imageInvalidType' => esc_html__( 'Only JPEG, PNG, GIF, and WebP images are supported.', 'ask-adam-lite' ),
-        ] );
+        wp_localize_script( 'aalite-widget', 'AskAdamLite', self::get_widget_l10n() );
     }
 
     public function enqueue_admin($hook) {

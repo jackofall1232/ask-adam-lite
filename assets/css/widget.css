@@ -450,3 +450,70 @@
 .aa-pro-ui .anna-title { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: .3px; }
 .aa-pro-ui .anna-subtitle { font-size: 13px; color: rgba(255,255,255,.65); }
 .aa-pro-ui .anna-input-wrap { display: flex; gap: 10px; align-items: flex-end; }
+
+/* ===============================
+   Image upload (vision)
+   =============================== */
+.aalite-image-preview {
+    position: relative;
+    display: inline-block;
+    margin: 0 0 8px;
+}
+.aalite-image-preview-img {
+    max-width: 120px;
+    max-height: 120px;
+    border-radius: 10px;
+    display: block;
+    border: 1px solid rgba(0,0,0,.1);
+}
+.aalite-image-remove {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: #ff6b6b;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,.25);
+}
+.aalite-image-remove:hover { background: #ff5252; }
+.aalite-attach {
+    background: transparent;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 10px;
+    color: inherit;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s, border-color .2s, opacity .2s;
+}
+.aalite-attach:hover { background: rgba(0,0,0,.05); }
+.aalite-attach:disabled { opacity: .5; cursor: not-allowed; }
+.aa-msg-img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* Pro UI variants for the floating widget */
+.aa-pro-ui .aalite-attach {
+    border: 1px solid #2d2f35;
+    color: #fff;
+    background: #0d1117;
+    border-radius: 12px;
+    padding: 10px;
+}
+.aa-pro-ui .aalite-attach:hover { background: #161b22; border-color: #00d9ff; }
+.aa-pro-ui .aalite-image-preview-img { border-color: rgba(255,255,255,.15); }

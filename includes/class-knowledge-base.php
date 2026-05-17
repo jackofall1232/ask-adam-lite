@@ -300,7 +300,7 @@ class Ask_Adam_Lite_KB {
             );
             // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
-            $now = current_time('mysql');
+            $now = current_time('mysql', true);
             $priority_flag = ($u === $priority) ? 1 : 0;
 
             if ($doc) {
@@ -351,7 +351,7 @@ class Ask_Adam_Lite_KB {
                     'content'     => $ch['content'],
                     'embedding'   => null,
                     'tokens'      => (int) $ch['tokens'],
-                    'created_at'  => current_time( 'mysql' ),
+                    'created_at'  => current_time( 'mysql', true ),
                 ] );
                 $total++;
             }

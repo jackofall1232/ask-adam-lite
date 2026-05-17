@@ -30,14 +30,7 @@ class Ask_Adam_Lite_Shortcode {
         if ( ! wp_script_is( 'aalite-widget', 'enqueued' ) ) {
             wp_enqueue_style( 'aalite-widget', AALITE_URL . 'assets/css/widget.css', [], AALITE_VER );
             wp_enqueue_script( 'aalite-widget', AALITE_URL . 'assets/js/widget.js', [], AALITE_VER, true );
-            wp_localize_script( 'aalite-widget', 'AskAdamLite', [
-                'restUrl'          => esc_url_raw( rest_url( 'adam-lite/v1/chat' ) ),
-                'nonce'            => wp_create_nonce( 'wp_rest' ),
-                'attachLabel'      => esc_html__( 'Attach image', 'ask-adam-lite' ),
-                'removeLabel'      => esc_html__( 'Remove image', 'ask-adam-lite' ),
-                'imageTooLarge'    => esc_html__( 'Image must be under 5MB.', 'ask-adam-lite' ),
-                'imageInvalidType' => esc_html__( 'Only JPEG, PNG, GIF, and WebP images are supported.', 'ask-adam-lite' ),
-            ] );
+            wp_localize_script( 'aalite-widget', 'AskAdamLite', Ask_Adam_Lite_Plugin::get_widget_l10n() );
         }
 
         ob_start(); ?>
@@ -62,9 +55,19 @@ class Ask_Adam_Lite_Shortcode {
             <div class="aalite-body anna-body" role="log" aria-live="polite"></div>
 
             <form class="aalite-form anna-form" method="dialog" onsubmit="return false">
+              <div class="aalite-image-preview" hidden>
+                <img class="aalite-image-preview-img" src="" alt="">
+                <button type="button" class="aalite-image-remove" aria-label="<?php echo esc_attr__('Remove image', 'ask-adam-lite'); ?>">&times;</button>
+              </div>
               <textarea required
                         placeholder="<?php echo esc_attr__('Ask a question…', 'ask-adam-lite'); ?>"
                         aria-label="<?php echo esc_attr__('Your message', 'ask-adam-lite'); ?>"></textarea>
+              <button type="button" class="aalite-attach" aria-label="<?php echo esc_attr__('Attach image', 'ask-adam-lite'); ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                </svg>
+              </button>
+              <input type="file" class="aalite-file" accept="image/jpeg,image/png,image/gif,image/webp" hidden>
               <button type="submit" class="anna-send">
                 <?php esc_html_e('Send', 'ask-adam-lite'); ?>
               </button>

@@ -25,8 +25,11 @@ class Ask_Adam_Lite_Logic {
 
 	/**
 	 * Main answer method. Returns array or WP_Error.
+	 *
+	 * @param string $prompt Sanitized user text prompt.
+	 * @param string $image  Optional base64 data URL of an image to analyze.
 	 */
-	public static function answer( $prompt ) {
+	public static function answer( $prompt, $image = '' ) {
 		$key = self::api_key();
 		if ( '' === $key ) {
 			return new WP_Error(
@@ -36,11 +39,15 @@ class Ask_Adam_Lite_Logic {
 			);
 		}
 
+		$image      = is_string( $image ) ? $image : '';
+		$has_image  = ( '' !== $image )
+			&& ( 1 === preg_match( '#^data:image/(jpeg|png|gif|webp);base64,#', $image ) );
+
 		// Normalize & guard input length (extra safety; API router already sanitizes)
 		$prompt = (string) $prompt;
 		$prompt = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F]+/u', ' ', $prompt ); // strip control chars
 		$prompt = trim( $prompt );
-		if ( '' === $prompt ) {
+		if ( '' === $prompt && ! $has_image ) {
 			return new WP_Error(
 				'aalite_empty_prompt',
 				__( 'Empty prompt.', 'ask-adam-lite' ),
@@ -71,27 +78,46 @@ class Ask_Adam_Lite_Logic {
 		$system_content = 'You are Adam, a concise and helpful assistant. Cite sources when provided.';
 		$user_content   = $prompt . $context_block;
 
-		// Resolve model and endpoint via Model_Config
-		$model    = Ask_Adam_Lite_Model_Config::get_reasoning_model();
+		// Resolve model and endpoint via Model_Config. Use the vision model
+		// when an image is attached so we always route to a vision-capable model.
+		$model    = $has_image
+			? Ask_Adam_Lite_Model_Config::get_vision_model()
+			: Ask_Adam_Lite_Model_Config::get_reasoning_model();
 		$endpoint = Ask_Adam_Lite_Model_Config::get_openai_endpoint( $model );
 
 		// Build request body based on API type
 		if ( Ask_Adam_Lite_Model_Config::use_responses_api( $model ) ) {
+			if ( $has_image ) {
+				$user_blocks = [
+					[ 'type' => 'input_text', 'text' => $user_content ],
+					[ 'type' => 'input_image', 'image_url' => $image ],
+				];
+			} else {
+				$user_blocks = $user_content;
+			}
 			$request_body = [
 				'model'             => $model,
 				'input'             => [
 					[ 'role' => 'system', 'content' => $system_content ],
-					[ 'role' => 'user',   'content' => $user_content ],
+					[ 'role' => 'user',   'content' => $user_blocks ],
 				],
 				'max_output_tokens' => self::MAX_TOKENS,
 				'reasoning'         => [ 'effort' => 'low' ],
 			];
 		} else {
+			if ( $has_image ) {
+				$user_blocks = [
+					[ 'type' => 'text', 'text' => $user_content ],
+					[ 'type' => 'image_url', 'image_url' => [ 'url' => $image ] ],
+				];
+			} else {
+				$user_blocks = $user_content;
+			}
 			$request_body = [
 				'model'    => $model,
 				'messages' => [
 					[ 'role' => 'system', 'content' => $system_content ],
-					[ 'role' => 'user',   'content' => $user_content ],
+					[ 'role' => 'user',   'content' => $user_blocks ],
 				],
 			];
 			if ( Ask_Adam_Lite_Model_Config::is_reasoning_model( $model ) ) {

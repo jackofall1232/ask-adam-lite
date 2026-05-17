@@ -27,3 +27,12 @@ if ( is_multisite() ) {
         delete_site_option( $k );
     }
 }
+
+// Drop KB custom tables.
+global $wpdb;
+$chunks_table = $wpdb->prefix . 'aalite_kb_chunks';
+$docs_table   = $wpdb->prefix . 'aalite_kb_docs';
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Dropping custom tables during uninstall.
+$wpdb->query( "DROP TABLE IF EXISTS `{$chunks_table}`" );
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Dropping custom tables during uninstall.
+$wpdb->query( "DROP TABLE IF EXISTS `{$docs_table}`" );

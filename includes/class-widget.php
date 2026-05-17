@@ -43,11 +43,19 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
                     fab.setAttribute("aria-expanded","false");
                 }
             };
-            document.addEventListener("keydown",e=>{
+            document.addEventListener("click",function(e){
+                const btn=e.target.closest(".aalite-btn");
+                if(!btn)return;
+                const wrap=btn.closest("[data-aalite-id]");
+                if(!wrap)return;
+                e.preventDefault();
+                window.AALiteToggle(wrap.getAttribute("data-aalite-id"));
+            });
+            document.addEventListener("keydown",function(e){
                 if(e.key==="Escape"){
-                    document.querySelectorAll(".aalite-panel.visible").forEach(p=>{
+                    document.querySelectorAll(".aalite-panel.visible").forEach(function(p){
                         const w=p.closest("[data-aalite-id]");
-                        if(w)AALiteToggle(w.getAttribute("data-aalite-id"),false);
+                        if(w)window.AALiteToggle(w.getAttribute("data-aalite-id"),false);
                     });
                 }
             });
@@ -112,9 +120,19 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
             </div>
 
             <form class="aalite-form anna-form pro-input" onsubmit="return false">
+              <div class="aalite-image-preview" hidden>
+                <img class="aalite-image-preview-img" src="" alt="">
+                <button type="button" class="aalite-image-remove" aria-label="<?php echo esc_attr__('Remove image', 'ask-adam-lite'); ?>">&times;</button>
+              </div>
               <div class="anna-input-wrap">
+                <button type="button" class="aalite-attach" aria-label="<?php echo esc_attr__('Attach image', 'ask-adam-lite'); ?>">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                  </svg>
+                </button>
+                <input type="file" class="aalite-file" accept="image/jpeg,image/png,image/gif,image/webp" hidden>
                 <textarea class="anna-textarea" placeholder="<?php echo esc_attr__('Type your message...', 'ask-adam-lite'); ?>" maxlength="2000"></textarea>
-                <button class="anna-send glowing" type="submit" aria-label="Send message">
+                <button class="anna-send glowing" type="submit" aria-label="<?php echo esc_attr__('Send message', 'ask-adam-lite'); ?>">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                        width="20" height="20" stroke="currentColor" fill="none"
                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
