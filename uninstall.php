@@ -9,6 +9,11 @@ $opts = [
     'aalite_widget_settings',
     'aalite_api_settings',
     'aalite_kb_settings',
+    'aalite_reasoning_model',
+    'aalite_vision_model',
+    'aalite_intent_model',
+    'aalite_embedding_model',
+    'aalite_kb_indexed_embedding_model',
 ];
 
 // Delete options for single-site.

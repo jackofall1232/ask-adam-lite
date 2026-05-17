@@ -10,12 +10,15 @@ class Ask_Adam_Lite_Plugin {
 
     private function __construct() {
         // Includes (runtime)
+        require_once AALITE_DIR . 'includes/class-model-config.php';
         require_once AALITE_DIR.'includes/class-admin.php';
         require_once AALITE_DIR.'includes/class-widget.php';
         require_once AALITE_DIR.'includes/class-shortcode.php';
         require_once AALITE_DIR.'includes/class-api-router.php';
         require_once AALITE_DIR.'includes/class-logic-handler.php';
         require_once AALITE_DIR.'includes/class-knowledge-base.php';
+
+        self::register_default_options();
 
         // i18n (avoid load_plugin_textdomain; load MO manually)
         add_action('init', [$this, 'load_textdomain']);
@@ -26,10 +29,44 @@ class Ask_Adam_Lite_Plugin {
         add_action('widgets_init', function(){ register_widget('Ask_Adam_Lite_Widget'); });
     }
 
+    private static function register_default_options() {
+        add_option( 'aalite_reasoning_model',  Ask_Adam_Lite_Model_Config::DEFAULT_REASONING_MODEL );
+        add_option( 'aalite_vision_model',     Ask_Adam_Lite_Model_Config::DEFAULT_VISION_MODEL );
+        add_option( 'aalite_intent_model',     Ask_Adam_Lite_Model_Config::DEFAULT_INTENT_MODEL );
+        add_option( 'aalite_embedding_model',  Ask_Adam_Lite_Model_Config::DEFAULT_EMBEDDING_MODEL );
+    }
+
     public static function activate() {
+        require_once AALITE_DIR . 'includes/class-model-config.php';
         // Ensure KB class is available during activation
         require_once AALITE_DIR.'includes/class-knowledge-base.php';
         Ask_Adam_Lite_KB::maybe_install_db();
+
+        // Migration: backfill aalite_kb_indexed_embedding_model for sites that
+        // had the KB indexed before this option existed.
+        // If chunks exist in the DB but the option is empty, we know those
+        // chunks were built with the old hardcoded default.
+        $indexed_model = get_option( 'aalite_kb_indexed_embedding_model', '' );
+        if ( '' === trim( (string) $indexed_model ) ) {
+            global $wpdb;
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+            $chunk_count = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    'SELECT COUNT(*) FROM `' . esc_sql( $wpdb->prefix . 'aalite_kb_chunks' ) . '`
+                     WHERE embedding IS NOT NULL AND embedding <> %s LIMIT %d',
+                    '',
+                    1
+                )
+            );
+            // phpcs:enable
+            if ( $chunk_count > 0 ) {
+                update_option(
+                    'aalite_kb_indexed_embedding_model',
+                    Ask_Adam_Lite_Model_Config::DEFAULT_EMBEDDING_MODEL
+                );
+            }
+        }
     }
 
     /**
