@@ -184,7 +184,11 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
             'priority_url' => ''
         ]);
 
-        ?>
+        <?php if ( Ask_Adam_Lite_Model_Config::detect_embedding_mismatch() ) : ?>
+        <div class="notice notice-warning">
+          <p><?php esc_html_e( 'The embedding model has changed since the Knowledge Base was last indexed. Please re-run Crawl and Embed to avoid mismatched search results.', 'ask-adam-lite' ); ?></p>
+        </div>
+        <?php endif; ?>
         <div class="wrap adam-admin is-light">
           <!-- WordPress/global notices from core/other plugins will appear above this .wrap automatically -->
 
@@ -329,7 +333,7 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
               <?php wp_nonce_field('aalite_save'); ?>
               <input type="hidden" name="_aalite_flag" value="1">
               <h2><?php esc_html_e('Knowledge Base (Lite)', 'ask-adam-lite'); ?></h2>
-              <p class="anna-hint"><?php esc_html_e('Lite indexes the first sitemap URL and the first priority URL. Caps: 50 pages, 300 chunks. Upgrade to Pro for upto 10 priority URL and 300 pages!', 'ask-adam-lite'); ?></p>
+              <p class="anna-hint"><?php esc_html_e('Lite indexes the first sitemap URL and the first priority URL. Caps: 50 pages, 300 chunks. Upgrade to Pro for upto 10 priority URL and 300 pages!', 'ask-adam-lite'); ?> <?php esc_html_e( 'After changing the embedding model, always re-run Crawl and Embed.', 'ask-adam-lite' ); ?></p>
 
               <label class="anna-label"><?php esc_html_e('Sitemap URL', 'ask-adam-lite'); ?></label>
               <input class="anna-input" type="url" name="sitemap_url" value="<?php echo esc_url($kb['sitemap_url']); ?>" placeholder="https://example.com/sitemap.xml">
