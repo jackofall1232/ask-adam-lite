@@ -75,6 +75,33 @@ class Ask_Adam_Lite_API {
                         return true;
                     },
                 ],
+                'image' => [
+                    'type'              => 'string',
+                    'required'          => false,
+                    'default'           => '',
+                    'sanitize_callback' => function ($value) {
+                        return is_string($value) ? $value : '';
+                    },
+                    'validate_callback' => function ($value) {
+                        if (!is_string($value) || '' === $value) {
+                            return true; // optional
+                        }
+                        // ~7MB cap on the data URL (base64 of 5MB raw).
+                        if (strlen($value) > 7 * 1024 * 1024) {
+                            return new WP_Error(
+                                'rest_invalid_param',
+                                __('Image is too large.', 'ask-adam-lite')
+                            );
+                        }
+                        if (!preg_match('#^data:image/(jpeg|png|gif|webp);base64,[A-Za-z0-9+/=]+$#', $value)) {
+                            return new WP_Error(
+                                'rest_invalid_param',
+                                __('Invalid image format.', 'ask-adam-lite')
+                            );
+                        }
+                        return true;
+                    },
+                ],
             ],
         ]);
     }
@@ -100,7 +127,10 @@ class Ask_Adam_Lite_API {
             );
         }
 
-        $out = Ask_Adam_Lite_Logic::answer($prompt);
+        $image = $req->get_param('image');
+        $image = is_string($image) ? $image : '';
+
+        $out = Ask_Adam_Lite_Logic::answer($prompt, $image);
         if (is_wp_error($out)) {
             return $out;
         }

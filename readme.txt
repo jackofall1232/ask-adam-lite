@@ -4,7 +4,7 @@ Tags: ai, chatbot, assistant, openai
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.5
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,9 @@ This plugin connects directly to the OpenAI API to generate chat responses and c
 Data sent:
 - Text prompts entered by site visitors or admins.
 - Optional content indexed by the site owner (titles, excerpts, or text).
+- Images uploaded by site visitors (base64-encoded), when vision is used.
+  Images are sent directly to OpenAI and are never stored on your server
+  or in the WordPress database.
 
 Destination:
 https://api.openai.com
@@ -82,6 +85,31 @@ All AI interactions are handled directly through your OpenAI account.
 The plugin is compatible with WordPress privacy guidelines and GDPR when used responsibly.
 
 == Changelog ==
+
+= 2.0.0 =
+* Architecture: Introduced centralized Ask_Adam_Lite_Model_Config class
+  for all model and endpoint management. No more hardcoded model strings
+  in business logic.
+* GPT-5 Support: Full Responses API support for GPT-5 and later models.
+  Endpoint routing is automatic based on model prefix.
+* Vision: Image upload support added to both the floating widget and the
+  [ask_adam_lite] shortcode. Accepts JPEG, PNG, GIF, and WebP up to 5MB.
+  Images are sent directly to OpenAI — never stored on disk or in the database.
+* Reasoning Models: o1 and o3 models now correctly use max_completion_tokens
+  and omit unsupported parameters (temperature, max_tokens).
+* Knowledge Base: Embedding model is now configurable via WordPress options.
+  Mismatch detection warns admins when the active model differs from the
+  indexed model. Upgraded sites are automatically backfilled on activation.
+* Security: Removed jQuery dependency from front-end script. Inline widget
+  styles moved to enqueued stylesheet. Inline onclick handler removed.
+* Bug Fix: Admin CSS filename mismatch corrected — admin styles now load
+  reliably on all configurations.
+* Bug Fix: Shortcode embed now correctly injects REST URL and nonce even
+  when the floating widget is disabled.
+* Bug Fix: Uninstall routine consolidated into uninstall.php — all plugin
+  options including new model options are now fully cleaned up on removal.
+* Compliance: All changes tested against WordPress Coding Standards and
+  Plugin Check. PHP 7.4+ compatible throughout.
 
 = 1.0.5 =
 * Compatibility: Fully tested with WordPress 6.9.
@@ -114,6 +142,11 @@ The plugin is compatible with WordPress privacy guidelines and GDPR when used re
 * Initial release.
 
 == Upgrade Notice ==
+
+= 2.0.0 =
+Major update. Adds GPT-5 and vision support, fixes admin CSS loading,
+shortcode REST injection, and uninstall cleanup. Re-run Crawl and Embed
+in the Knowledge Base tab after upgrading if you use the KB feature.
 
 = 1.0.5 =
 Tested for compatibility with WordPress 6.9. Recommended update for all users.
