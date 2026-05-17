@@ -151,7 +151,7 @@ class Ask_Adam_Lite_Widget extends WP_Widget {
           <button class="aalite-btn anna-fab pro-gradient"
                   type="button"
                   style="<?php echo esc_attr($fab_style); ?>"
-                  aria-label="<?php echo $fab_aria_label; ?>"
+                  aria-label="<?php echo esc_attr( $fab_aria_label ); ?>"
                   aria-expanded="false">
               <span class="fab-glow"></span>
               <svg class="fab-icon fab-icon-plus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2.5" stroke-linecap="round">
