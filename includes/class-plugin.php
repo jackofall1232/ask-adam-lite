@@ -10,12 +10,15 @@ class Ask_Adam_Lite_Plugin {
 
     private function __construct() {
         // Includes (runtime)
+        require_once AALITE_DIR . 'includes/class-model-config.php';
         require_once AALITE_DIR.'includes/class-admin.php';
         require_once AALITE_DIR.'includes/class-widget.php';
         require_once AALITE_DIR.'includes/class-shortcode.php';
         require_once AALITE_DIR.'includes/class-api-router.php';
         require_once AALITE_DIR.'includes/class-logic-handler.php';
         require_once AALITE_DIR.'includes/class-knowledge-base.php';
+
+        self::register_default_options();
 
         // i18n (avoid load_plugin_textdomain; load MO manually)
         add_action('init', [$this, 'load_textdomain']);
@@ -24,6 +27,13 @@ class Ask_Adam_Lite_Plugin {
         add_action('admin_enqueue_scripts',[$this, 'enqueue_admin']);
 
         add_action('widgets_init', function(){ register_widget('Ask_Adam_Lite_Widget'); });
+    }
+
+    private static function register_default_options() {
+        add_option( 'aalite_reasoning_model',  Ask_Adam_Lite_Model_Config::DEFAULT_REASONING_MODEL );
+        add_option( 'aalite_vision_model',     Ask_Adam_Lite_Model_Config::DEFAULT_VISION_MODEL );
+        add_option( 'aalite_intent_model',     Ask_Adam_Lite_Model_Config::DEFAULT_INTENT_MODEL );
+        add_option( 'aalite_embedding_model',  Ask_Adam_Lite_Model_Config::DEFAULT_EMBEDDING_MODEL );
     }
 
     public static function activate() {
