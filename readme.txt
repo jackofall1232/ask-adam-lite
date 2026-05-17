@@ -88,28 +88,55 @@ The plugin is compatible with WordPress privacy guidelines and GDPR when used re
 
 = 2.0.0 =
 * Architecture: Introduced centralized Ask_Adam_Lite_Model_Config class
-  for all model and endpoint management. No more hardcoded model strings
-  in business logic.
-* GPT-5 Support: Full Responses API support for GPT-5 and later models.
-  Endpoint routing is automatic based on model prefix.
+  as the single source of truth for all model identifiers, API endpoints,
+  and response normalization. No hardcoded model strings remain in
+  business logic.
+* GPT-5 Support: Full OpenAI Responses API support for GPT-5 and later
+  models. Endpoint routing is automatic based on model prefix. Legacy
+  Chat Completions API continues to work for GPT-4o and earlier.
 * Vision: Image upload support added to both the floating widget and the
-  [ask_adam_lite] shortcode. Accepts JPEG, PNG, GIF, and WebP up to 5MB.
-  Images are sent directly to OpenAI — never stored on disk or in the database.
-* Reasoning Models: o1 and o3 models now correctly use max_completion_tokens
-  and omit unsupported parameters (temperature, max_tokens).
-* Knowledge Base: Embedding model is now configurable via WordPress options.
-  Mismatch detection warns admins when the active model differs from the
-  indexed model. Upgraded sites are automatically backfilled on activation.
-* Security: Removed jQuery dependency from front-end script. Inline widget
-  styles moved to enqueued stylesheet. Inline onclick handler removed.
-* Bug Fix: Admin CSS filename mismatch corrected — admin styles now load
-  reliably on all configurations.
-* Bug Fix: Shortcode embed now correctly injects REST URL and nonce even
-  when the floating widget is disabled.
-* Bug Fix: Uninstall routine consolidated into uninstall.php — all plugin
-  options including new model options are now fully cleaned up on removal.
-* Compliance: All changes tested against WordPress Coding Standards and
-  Plugin Check. PHP 7.4+ compatible throughout.
+  [ask_adam_lite] shortcode embed. Accepts JPEG, PNG, GIF, and WebP up
+  to 5MB. Images are transmitted directly to OpenAI — never written to
+  disk or stored in the WordPress database.
+* Reasoning Models: o1 and o3 models now correctly use
+  max_completion_tokens and omit unsupported parameters (temperature,
+  max_tokens) that cause API 400 errors on those model families.
+* Knowledge Base: Embedding model is now configurable via WordPress
+  options. Admin warning displayed when the active embedding model
+  differs from the model used during the last index build. Sites
+  upgraded from 1.x are automatically backfilled on activation so the
+  mismatch warning appears correctly.
+* Knowledge Base: Partial-batch embedding protection — the indexed model
+  option is only recorded after all chunks are fully embedded, preventing
+  the mismatch warning from clearing prematurely on large sites.
+* Knowledge Base: Database chunk COUNT query moved outside the insert
+  loop — eliminates a full table scan on every chunk insert during crawl.
+* Knowledge Base: All timestamps now stored in UTC via
+  current_time('mysql', true) for consistency across timezone changes.
+* Localization: Shared wp_localize_script data extracted into a single
+  static method (get_widget_l10n()) called by both enqueue_front() and
+  the shortcode — eliminates risk of the two diverging.
+* Security: Removed unnecessary jQuery dependency from front-end script.
+* Security: Inline widget styles moved from PHP footer output into the
+  enqueued widget stylesheet — passes WordPress Plugin Check.
+* Security: Inline onclick attribute removed from FAB button — event
+  wired via existing inline script registration instead.
+* Security: Missing translators comments added to all sprintf/__()
+  calls containing placeholders.
+* Security: All output escaping audited — esc_attr() applied at output,
+  not at assignment, to prevent double-escaping.
+* Bug Fix: Admin CSS filename mismatch corrected (adam-admin.css vs
+  admin.css) — admin styles now load reliably on all server
+  configurations.
+* Bug Fix: Shortcode embed now correctly injects REST URL and nonce via
+  wp_localize_script even when the floating widget is disabled.
+* Bug Fix: Uninstall routine consolidated into uninstall.php — the
+  duplicate function in ask-adam-lite.php removed. All plugin options
+  including the five new model options are fully cleaned up on removal.
+* Bug Fix: Global variables in uninstall.php prefixed with aalite_ to
+  comply with WordPress naming conventions.
+* Compliance: All changes pass WordPress Coding Standards (WPCS),
+  Plugin Check, and PHP 7.4+ compatibility requirements.
 
 = 1.0.5 =
 * Compatibility: Fully tested with WordPress 6.9.
@@ -144,9 +171,11 @@ The plugin is compatible with WordPress privacy guidelines and GDPR when used re
 == Upgrade Notice ==
 
 = 2.0.0 =
-Major update. Adds GPT-5 and vision support, fixes admin CSS loading,
-shortcode REST injection, and uninstall cleanup. Re-run Crawl and Embed
-in the Knowledge Base tab after upgrading if you use the KB feature.
+IMPORTANT: If you use the Knowledge Base feature, you must re-run Crawl
+and Embed from the Knowledge Base tab after upgrading. The embedding
+architecture has changed and existing indexes need to be rebuilt.
+This release also adds image/vision support, GPT-5 compatibility, and
+fixes several Plugin Check compliance issues. Recommended for all users.
 
 = 1.0.5 =
 Tested for compatibility with WordPress 6.9. Recommended update for all users.
