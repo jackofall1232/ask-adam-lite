@@ -12,42 +12,73 @@ class Ask_Adam_Lite_Shortcode {
             'avatar_url'     => ''
         ]);
 
-        // Sanitize values early
+        // Sanitize early
         $name_raw = isset($w['assistant_name']) ? (string) $w['assistant_name'] : 'Adam';
         $name     = sanitize_text_field($name_raw);
-        $avatar   = isset($w['avatar_url']) ? (string) $w['avatar_url'] : '';
+        $avatar   = isset($w['avatar_url']) ? esc_url_raw((string) $w['avatar_url']) : '';
 
         $display_name = $name . ' • Ask Adam Lite-Free Version';
+        $initial      = strtoupper(function_exists('mb_substr')
+            ? mb_substr($name, 0, 1)
+            : substr($name, 0, 1)
+        );
 
-        // Unique ID helps if you later want to add a close in embeds too
+        // Unique ID helps isolate multiple embeds on the same page
         $id = 'aalite-embed-' . wp_generate_uuid4();
+
+        // Make sure front-end assets are loaded
+        if ( ! wp_script_is( 'aalite-widget', 'enqueued' ) ) {
+            wp_enqueue_style( 'aalite-widget', AALITE_URL . 'assets/css/widget.css', [], AALITE_VER );
+            wp_enqueue_script( 'aalite-widget', AALITE_URL . 'assets/js/widget.js', [], AALITE_VER, true );
+            wp_localize_script( 'aalite-widget', 'AskAdamLite', Ask_Adam_Lite_Plugin::get_widget_l10n() );
+        }
 
         ob_start(); ?>
         <div id="<?php echo esc_attr($id); ?>"
-             class="aalite-embed"
+             class="aalite-embed anna-root"
              data-name="<?php echo esc_attr($name); ?>"
              data-avatar="<?php echo esc_url($avatar); ?>">
-          <div class="aalite-panel">
-            <div class="aalite-head">
+          <div class="aalite-panel anna-panel">
+            <div class="aalite-head anna-head">
               <?php if (!empty($avatar)) : ?>
                 <img src="<?php echo esc_url($avatar); ?>"
                      alt="<?php echo esc_attr($name); ?>"
-                     class="aalite-avatar"/>
+                     class="aalite-avatar anna-avatar"/>
               <?php else : ?>
-                <div class="aalite-avatar aa-fallback">
-                  <?php echo esc_html( strtoupper( mb_substr($name, 0, 1) ) ); ?>
+                <div class="aalite-avatar aa-fallback anna-avatar">
+                  <?php echo esc_html($initial); ?>
                 </div>
               <?php endif; ?>
-              <strong><?php echo esc_html($display_name); ?></strong>
+              <strong class="anna-title"><?php echo esc_html($display_name); ?></strong>
             </div>
 
-            <div class="aalite-body"></div>
+            <div class="aalite-body anna-body" role="log" aria-live="polite"></div>
 
-            <form class="aalite-form" method="dialog" onsubmit="return false">
+            <form class="aalite-form anna-form" method="dialog" onsubmit="return false">
+              <div class="aalite-image-preview" hidden>
+                <img class="aalite-image-preview-img" src="" alt="">
+                <button type="button" class="aalite-image-remove" aria-label="<?php echo esc_attr__('Remove image', 'ask-adam-lite'); ?>">&times;</button>
+              </div>
               <textarea required
-                        placeholder="<?php echo esc_attr__('Ask a question…', 'ask-adam-lite'); ?>"></textarea>
-              <button type="submit"><?php esc_html_e('Send', 'ask-adam-lite'); ?></button>
+                        placeholder="<?php echo esc_attr__('Ask a question…', 'ask-adam-lite'); ?>"
+                        aria-label="<?php echo esc_attr__('Your message', 'ask-adam-lite'); ?>"></textarea>
+              <button type="button" class="aalite-attach" aria-label="<?php echo esc_attr__('Attach image', 'ask-adam-lite'); ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                </svg>
+              </button>
+              <input type="file" class="aalite-file" accept="image/jpeg,image/png,image/gif,image/webp" hidden>
+              <button type="submit" class="anna-send">
+                <?php esc_html_e('Send', 'ask-adam-lite'); ?>
+              </button>
             </form>
+
+            <noscript>
+              <div class="aa-msg err anna-noscript">
+                <strong><?php echo esc_html__('JavaScript Required:', 'ask-adam-lite'); ?></strong>
+                <?php echo esc_html__('Ask Adam Lite requires JavaScript to function.', 'ask-adam-lite'); ?>
+              </div>
+            </noscript>
           </div>
         </div>
         <?php

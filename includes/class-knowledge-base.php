@@ -6,7 +6,7 @@ class Ask_Adam_Lite_KB {
     const MAX_CHUNKS = 300;
     const TOP_K      = 3;
 
-    /** Single user-agent we’ll use for all outbound requests */
+    /** Single user-agent we'll use for all outbound requests */
     private static function ua(): string {
         return 'AdamLiteBot/1.0 (+'.home_url('/').')';
     }
@@ -14,8 +14,8 @@ class Ask_Adam_Lite_KB {
     /** Create/upgrade KB tables with proper collation + helpful indexes */
     public static function maybe_install_db() {
         global $wpdb;
-        $docs   = $wpdb->prefix . 'aalite_kb_docs';
-        $chunks = $wpdb->prefix . 'aalite_kb_chunks';
+        $docs    = $wpdb->prefix . 'aalite_kb_docs';
+        $chunks  = $wpdb->prefix . 'aalite_kb_chunks';
         $collate = $wpdb->get_charset_collate();
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -55,7 +55,9 @@ class Ask_Adam_Lite_KB {
     /** Drop all docs/chunks */
     public static function purge_index() {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table truncation, no WP equivalent.
         $wpdb->query('TRUNCATE TABLE `'.$wpdb->prefix.'aalite_kb_chunks`');
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table truncation, no WP equivalent.
         $wpdb->query('TRUNCATE TABLE `'.$wpdb->prefix.'aalite_kb_docs`');
     }
 
@@ -117,10 +119,10 @@ class Ask_Adam_Lite_KB {
     private static function robots_allows(string $url): bool {
         $p = wp_parse_url($url);
         if (!$p || empty($p['host'])) return false;
-        $host = strtolower($p['host']);
+        $host   = strtolower($p['host']);
         $scheme = $p['scheme'] ?? 'https';
-        $key = 'aalite_robots_' . md5($scheme.'://'.$host);
-        $rules = get_transient($key);
+        $key    = 'aalite_robots_' . md5($scheme.'://'.$host);
+        $rules  = get_transient($key);
 
         if (!is_array($rules)) {
             $robots_url = $scheme.'://'.$host.'/robots.txt';
@@ -132,7 +134,7 @@ class Ask_Adam_Lite_KB {
             if (!is_wp_error($res) && wp_remote_retrieve_response_code($res) === 200) {
                 $body = wp_remote_retrieve_body($res);
                 if (is_string($body) && $body !== '') {
-                    $lines = preg_split('/\r\n|\r|\n/', $body);
+                    $lines   = preg_split('/\r\n|\r|\n/', $body);
                     $ua_block = false;
                     foreach ($lines as $line) {
                         $line = trim($line);
@@ -274,8 +276,9 @@ class Ask_Adam_Lite_KB {
     /** Crawl & index a list of URLs (respects global caps) */
     private static function crawl_list($urls, $priority) {
         global $wpdb;
-        $T1 = $wpdb->prefix.'aalite_kb_docs';
-        $T2 = $wpdb->prefix.'aalite_kb_chunks';
+        // Table names are escaped with esc_sql; backticks protect identifiers. Values use prepare().
+        $T1 = esc_sql($wpdb->prefix.'aalite_kb_docs');
+        $T2 = esc_sql($wpdb->prefix.'aalite_kb_chunks');
 
         $added = 0; $count = 0;
         foreach ($urls as $u) {
@@ -286,59 +289,71 @@ class Ask_Adam_Lite_KB {
             if (!empty($res['error'])) continue;
 
             $url_hash = hash('sha256', $u);
+
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $doc = $wpdb->get_row(
-                $wpdb->prepare("SELECT id, priority FROM $T1 WHERE url_hash=%s", $url_hash),
+                $wpdb->prepare(
+                    "SELECT id, priority FROM `{$T1}` WHERE url_hash = %s",
+                    $url_hash
+                ),
                 ARRAY_A
             );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
-            $now = current_time('mysql');
+            $now = current_time('mysql', true);
             $priority_flag = ($u === $priority) ? 1 : 0;
 
             if ($doc) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table update.
                 $wpdb->update(
                     $T1,
                     [
                         'title'        => $res['title'],
                         'source_hash'  => $res['hash'],
                         'last_crawled' => $now,
-                        'priority'     => max((int)$doc['priority'], $priority_flag),
+                        'priority'     => max((int)$doc['priority'], (int)$priority_flag),
                         'status'       => 'indexed',
                         'error'        => ''
                     ],
                     ['id' => (int)$doc['id']]
                 );
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table delete.
                 $wpdb->delete($T2, ['doc_id' => (int)$doc['id']]);
                 $doc_id = (int)$doc['id'];
             } else {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table insert.
                 $wpdb->insert($T1, [
                     'url'          => $u,
                     'url_hash'     => $url_hash,
                     'title'        => $res['title'],
                     'source_hash'  => $res['hash'],
                     'last_crawled' => $now,
-                    'priority'     => $priority_flag,
+                    'priority'     => (int)$priority_flag,
                     'status'       => 'indexed',
                     'error'        => ''
                 ]);
                 $doc_id = (int)$wpdb->insert_id;
             }
 
-            foreach (self::chunk_text($res['text']) as $ch) {
-                // Cap chunks globally
-                $total = (int) $wpdb->get_var(
-                    // Use a prepared no-op predicate to satisfy the sniff.
-                    $wpdb->prepare("SELECT COUNT(*) FROM $T2 WHERE 1 = %d", 1)
-                );
-                if ($total >= self::MAX_CHUNKS) break 2;
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $total = (int) $wpdb->get_var(
+                $wpdb->prepare( "SELECT COUNT(*) FROM `{$T2}` WHERE 1 = %d", 1 )
+            );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
-                $wpdb->insert($T2, [
-                    'doc_id'      => $doc_id,
-                    'chunk_index' => (int)$ch['index'],
+            foreach ( self::chunk_text( $res['text'] ) as $ch ) {
+                if ( $total >= self::MAX_CHUNKS ) break 2;
+
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table insert.
+                $wpdb->insert( $T2, [
+                    'doc_id'      => (int) $doc_id,
+                    'chunk_index' => (int) $ch['index'],
                     'content'     => $ch['content'],
                     'embedding'   => null,
-                    'tokens'      => (int)$ch['tokens'],
-                    'created_at'  => current_time('mysql')
-                ]);
+                    'tokens'      => (int) $ch['tokens'],
+                    'created_at'  => current_time( 'mysql', true ),
+                ] );
+                $total++;
             }
 
             $added++;
@@ -350,15 +365,18 @@ class Ask_Adam_Lite_KB {
     /** Generate embeddings for pending chunks (batched) */
     public static function embed_pending($limit = 50) {
         global $wpdb;
-        $T2 = $wpdb->prefix.'aalite_kb_chunks';
+        $T2 = esc_sql($wpdb->prefix.'aalite_kb_chunks');
 
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT id, content FROM $T2 WHERE embedding IS NULL OR embedding='' LIMIT %d",
+                "SELECT id, content FROM `{$T2}` WHERE embedding IS NULL OR embedding = '' LIMIT %d",
                 max(1, (int)$limit)
             ),
             ARRAY_A
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
         if (!$rows) return 0;
 
         $key = defined('AALITE_OPENAI_API_KEY')
@@ -367,35 +385,53 @@ class Ask_Adam_Lite_KB {
 
         if (!$key) return 0;
 
-        $inputs = array_map(function($r){ return (string)$r['content']; }, $rows);
+        $inputs          = array_map( function( $r ) { return (string) $r['content']; }, $rows );
+        $embedding_model = Ask_Adam_Lite_Model_Config::get_embedding_model();
 
-        $resp = wp_remote_post('https://api.openai.com/v1/embeddings', [
+        $resp = wp_remote_post( Ask_Adam_Lite_Model_Config::get_openai_endpoint( 'embeddings' ), [
             'timeout' => 20,
             'headers' => [
-                'Authorization' => 'Bearer '.$key,
+                'Authorization' => 'Bearer ' . $key,
                 'Content-Type'  => 'application/json',
                 'User-Agent'    => self::ua(),
             ],
-            'body' => wp_json_encode([
-                'model' => 'text-embedding-3-small',
-                'input' => $inputs
-            ]),
-        ]);
+            'body' => wp_json_encode( [
+                'model' => $embedding_model,
+                'input' => $inputs,
+            ] ),
+        ] );
 
-        if (is_wp_error($resp)) return 0;
-        $code = wp_remote_retrieve_response_code($resp);
-        if ($code !== 200) return 0;
+        if ( is_wp_error( $resp ) ) return 0;
+        $code = wp_remote_retrieve_response_code( $resp );
+        if ( $code !== 200 ) return 0;
 
-        $body = json_decode(wp_remote_retrieve_body($resp), true);
+        $body = json_decode( wp_remote_retrieve_body( $resp ), true );
         $vecs = $body['data'] ?? null;
-        if (!is_array($vecs)) return 0;
+        if ( ! is_array( $vecs ) ) return 0;
 
         $updated = 0;
-        foreach ($rows as $i => $r) {
-            if (!isset($vecs[$i]['embedding']) || !is_array($vecs[$i]['embedding'])) continue;
-            $emb = wp_json_encode($vecs[$i]['embedding']);
-            $wpdb->update($T2, ['embedding' => $emb], ['id' => (int)$r['id']]);
+        foreach ( $rows as $i => $r ) {
+            if ( ! isset( $vecs[ $i ]['embedding'] ) || ! is_array( $vecs[ $i ]['embedding'] ) ) continue;
+            $emb = wp_json_encode( $vecs[ $i ]['embedding'] );
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table update for embeddings.
+            $wpdb->update( $T2, [ 'embedding' => $emb ], [ 'id' => (int) $r['id'] ] );
             $updated++;
+        }
+
+        // Only record the indexed model when no unembedded chunks remain.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+        $remaining = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM `{$T2}` WHERE embedding IS NULL OR embedding = '' LIMIT %d",
+                1
+            )
+        );
+        // phpcs:enable
+
+        if ( 0 === $remaining ) {
+            Ask_Adam_Lite_Model_Config::set_indexed_embedding_model( $embedding_model );
         }
 
         return $updated;
@@ -404,8 +440,8 @@ class Ask_Adam_Lite_KB {
     /** Retrieve top-k chunks (simple cosine), return context + distinct sources */
     public static function retrieve_topk($query, $k) {
         global $wpdb;
-        $T1 = $wpdb->prefix.'aalite_kb_docs';
-        $T2 = $wpdb->prefix.'aalite_kb_chunks';
+        $T1 = esc_sql($wpdb->prefix.'aalite_kb_docs');
+        $T2 = esc_sql($wpdb->prefix.'aalite_kb_chunks');
 
         // Embed query
         $key = defined('AALITE_OPENAI_API_KEY')
@@ -414,18 +450,18 @@ class Ask_Adam_Lite_KB {
 
         if (!$key) return ['context'=>'','sources'=>[]];
 
-        $resp = wp_remote_post('https://api.openai.com/v1/embeddings', [
+        $resp = wp_remote_post( Ask_Adam_Lite_Model_Config::get_openai_endpoint( 'embeddings' ), [
             'timeout' => 12,
             'headers' => [
-                'Authorization' => 'Bearer '.$key,
+                'Authorization' => 'Bearer ' . $key,
                 'Content-Type'  => 'application/json',
                 'User-Agent'    => self::ua(),
             ],
-            'body' => wp_json_encode([
-                'model' => 'text-embedding-3-small',
-                'input' => (string)$query
-            ]),
-        ]);
+            'body' => wp_json_encode( [
+                'model' => Ask_Adam_Lite_Model_Config::get_embedding_model(),
+                'input' => (string) $query,
+            ] ),
+        ] );
         if (is_wp_error($resp)) return ['context'=>'','sources'=>[]];
 
         $code = wp_remote_retrieve_response_code($resp);
@@ -435,18 +471,20 @@ class Ask_Adam_Lite_KB {
         $qvec = $rbody['data'][0]['embedding'] ?? null;
         if (!is_array($qvec)) return ['context'=>'','sources'=>[]];
 
-        // Load a capped set of embeddings (use prepared LIMIT, inline)
-$rows = $wpdb->get_results(
-    $wpdb->prepare(
-        "SELECT c.id, c.content, c.embedding, d.url, d.title, d.priority
-         FROM $T2 c
-         INNER JOIN $T1 d ON d.id = c.doc_id
-         WHERE c.embedding IS NOT NULL AND c.embedding <> ''
-         LIMIT %d",
-        (int) self::MAX_CHUNKS
-    ),
-    ARRAY_A
-);
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT c.id, c.content, c.embedding, d.url, d.title, d.priority
+                 FROM `{$T2}` c
+                 INNER JOIN `{$T1}` d ON d.id = c.doc_id
+                 WHERE c.embedding IS NOT NULL AND c.embedding <> ''
+                 LIMIT %d",
+                (int) self::MAX_CHUNKS
+            ),
+            ARRAY_A
+        );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
         if (!$rows) return ['context'=>'','sources'=>[]];
 
         $scores = [];
@@ -486,9 +524,9 @@ $rows = $wpdb->get_results(
         $seen = [];
         $sources = [];
         foreach ($top as $t) {
-            $key = $t['url'];
-            if (isset($seen[$key])) continue;
-            $seen[$key] = true;
+            $key_url = $t['url'];
+            if (isset($seen[$key_url])) continue;
+            $seen[$key_url] = true;
             $sources[] = ['title' => $t['title'], 'url' => $t['url']];
         }
 

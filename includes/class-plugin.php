@@ -10,12 +10,16 @@ class Ask_Adam_Lite_Plugin {
 
     private function __construct() {
         // Includes (runtime)
+        require_once AALITE_DIR . 'includes/class-model-config.php';
         require_once AALITE_DIR.'includes/class-admin.php';
         require_once AALITE_DIR.'includes/class-widget.php';
         require_once AALITE_DIR.'includes/class-shortcode.php';
         require_once AALITE_DIR.'includes/class-api-router.php';
         require_once AALITE_DIR.'includes/class-logic-handler.php';
         require_once AALITE_DIR.'includes/class-knowledge-base.php';
+
+        self::register_default_options();
+        self::maybe_migrate_indexed_embedding_model();
 
         // i18n (avoid load_plugin_textdomain; load MO manually)
         add_action('init', [$this, 'load_textdomain']);
@@ -26,10 +30,71 @@ class Ask_Adam_Lite_Plugin {
         add_action('widgets_init', function(){ register_widget('Ask_Adam_Lite_Widget'); });
     }
 
+    /**
+     * Localization data shared by the floating widget and the shortcode.
+     * Single source of truth for the `AskAdamLite` JS global.
+     */
+    public static function get_widget_l10n() {
+        return [
+            'restUrl'          => esc_url_raw( rest_url( 'adam-lite/v1/chat' ) ),
+            'nonce'            => wp_create_nonce( 'wp_rest' ),
+            'attachLabel'      => esc_html__( 'Attach image', 'ask-adam-lite' ),
+            'removeLabel'      => esc_html__( 'Remove image', 'ask-adam-lite' ),
+            'imageTooLarge'    => esc_html__( 'Image must be under 5MB.', 'ask-adam-lite' ),
+            'imageInvalidType' => esc_html__( 'Only JPEG, PNG, GIF, and WebP images are supported.', 'ask-adam-lite' ),
+        ];
+    }
+
+    private static function register_default_options() {
+        add_option( 'aalite_reasoning_model',  Ask_Adam_Lite_Model_Config::DEFAULT_REASONING_MODEL );
+        add_option( 'aalite_vision_model',     Ask_Adam_Lite_Model_Config::DEFAULT_VISION_MODEL );
+        add_option( 'aalite_intent_model',     Ask_Adam_Lite_Model_Config::DEFAULT_INTENT_MODEL );
+        add_option( 'aalite_embedding_model',  Ask_Adam_Lite_Model_Config::DEFAULT_EMBEDDING_MODEL );
+    }
+
+    /**
+     * Records the legacy embedding model for indexes that predate the
+     * indexed-model option. This also runs after an update so existing sites
+     * receive an embedding mismatch warning when the active model changes.
+     */
+    private static function maybe_migrate_indexed_embedding_model() {
+        $indexed_model = get_option( 'aalite_kb_indexed_embedding_model', '' );
+        if ( '' !== trim( (string) $indexed_model ) ) {
+            return;
+        }
+
+        global $wpdb;
+        $table_name = esc_sql( $wpdb->prefix . 'aalite_kb_chunks' );
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $table_exists = $wpdb->get_var(
+            $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'aalite_kb_chunks' )
+        );
+        if ( $table_exists !== $wpdb->prefix . 'aalite_kb_chunks' ) {
+            return;
+        }
+        $chunk_count = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT COUNT(*) FROM `' . $table_name . '` WHERE embedding IS NOT NULL AND embedding <> %s LIMIT %d',
+                '',
+                1
+            )
+        );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+        if ( $chunk_count > 0 ) {
+            Ask_Adam_Lite_Model_Config::set_indexed_embedding_model(
+                Ask_Adam_Lite_Model_Config::DEFAULT_EMBEDDING_MODEL
+            );
+        }
+    }
+
     public static function activate() {
+        require_once AALITE_DIR . 'includes/class-model-config.php';
         // Ensure KB class is available during activation
         require_once AALITE_DIR.'includes/class-knowledge-base.php';
         Ask_Adam_Lite_KB::maybe_install_db();
+
+        self::maybe_migrate_indexed_embedding_model();
     }
 
     /**
@@ -39,7 +104,7 @@ class Ask_Adam_Lite_Plugin {
     public function load_textdomain() {
         $domain = AALITE_TD;
         $locale = determine_locale();
-        $locale = apply_filters('plugin_locale', $locale, $domain);
+        $locale = apply_filters( 'plugin_locale', $locale, $domain ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core WP filter, not plugin-defined.
 
         // Prefer global languages: wp-content/languages/plugins/ask-adam-lite-xx_XX.mo
         $global_mo = trailingslashit(WP_LANG_DIR) . 'plugins/' . $domain . '-' . $locale . '.mo';
@@ -83,12 +148,9 @@ class Ask_Adam_Lite_Plugin {
         }
 
         wp_enqueue_style('aalite-widget', AALITE_URL.'assets/css/widget.css', [], AALITE_VER);
-        wp_enqueue_script('aalite-widget', AALITE_URL.'assets/js/widget.js', ['jquery'], AALITE_VER, true);
+        wp_enqueue_script('aalite-widget', AALITE_URL.'assets/js/widget.js', [], AALITE_VER, true);
 
-        wp_localize_script('aalite-widget', 'AskAdamLite', [
-            'restUrl' => esc_url_raw(rest_url('adam-lite/v1/chat')),
-            'nonce'   => wp_create_nonce('wp_rest'),
-        ]);
+        wp_localize_script( 'aalite-widget', 'AskAdamLite', self::get_widget_l10n() );
     }
 
     public function enqueue_admin($hook) {
