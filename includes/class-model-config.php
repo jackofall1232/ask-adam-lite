@@ -14,14 +14,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Ask_Adam_Lite_Model_Config {
 
-	const DEFAULT_REASONING_MODEL  = 'gpt-4o-mini';
-	const DEFAULT_VISION_MODEL     = 'gpt-4o-mini';
-	const DEFAULT_INTENT_MODEL     = 'gpt-4o-mini';
+	const DEFAULT_REASONING_MODEL  = 'gpt-5.6-luna';
+	const DEFAULT_VISION_MODEL     = 'gpt-5.6-luna';
+	const DEFAULT_INTENT_MODEL     = 'gpt-5.6-luna';
 	const DEFAULT_EMBEDDING_MODEL  = 'text-embedding-3-small';
 
-	const ENDPOINT_RESPONSES         = 'https://api.openai.com/v1/responses';
-	const ENDPOINT_CHAT_COMPLETIONS  = 'https://api.openai.com/v1/chat/completions';
-	const ENDPOINT_EMBEDDINGS        = 'https://api.openai.com/v1/embeddings';
+	const ENDPOINT_RESPONSES  = 'https://api.openai.com/v1/responses';
+	const ENDPOINT_EMBEDDINGS = 'https://api.openai.com/v1/embeddings';
 
 	/**
 	 * Private constructor — prevent instantiation.
@@ -69,43 +68,29 @@ class Ask_Adam_Lite_Model_Config {
 	}
 
 	/**
-	 * Returns true if the given model should use the Responses API.
+	 * OpenAI requests use the Responses API.
 	 *
-	 * @param string $model Model identifier string.
 	 * @return bool
 	 */
-	public static function use_responses_api( string $model ): bool {
-		return strpos( $model, 'gpt-5' ) === 0;
+	public static function use_responses_api(): bool {
+		return true;
 	}
 
 	/**
-	 * Returns true for o1/o3 reasoning models that use Chat Completions but
-	 * reject temperature and require max_completion_tokens instead of max_tokens.
+	 * Returns an OpenAI endpoint managed by this configuration class.
 	 *
-	 * @param string $model Model identifier string.
-	 * @return bool
-	 */
-	public static function is_reasoning_model( string $model ): bool {
-		return strpos( $model, 'o1' ) === 0 || strpos( $model, 'o3' ) === 0;
-	}
-
-	/**
-	 * Returns the appropriate OpenAI endpoint for the given model.
-	 *
-	 * @param string $model Model identifier string.
+	 * @param string $resource Supported values are "responses" and "embeddings".
 	 * @return string
 	 */
-	public static function get_openai_endpoint( string $model ): string {
-		if ( self::use_responses_api( $model ) ) {
-			return self::ENDPOINT_RESPONSES;
-		}
-		return self::ENDPOINT_CHAT_COMPLETIONS;
+	public static function get_openai_endpoint( string $resource = 'responses' ): string {
+		return 'embeddings' === $resource ? self::ENDPOINT_EMBEDDINGS : self::ENDPOINT_RESPONSES;
 	}
 
 	/**
 	 * Extracts the text content from an OpenAI API response body.
 	 *
-	 * Supports both the Responses API and Chat Completions formats.
+	 * Supports Responses API output and legacy Chat Completions output as a
+	 * parser fallback for response bodies produced before this refactor.
 	 *
 	 * @param array $body Decoded JSON response from OpenAI.
 	 * @return string Trimmed output text, or empty string if not found.
@@ -115,7 +100,7 @@ class Ask_Adam_Lite_Model_Config {
 		if ( isset( $body['output_text'] ) && is_string( $body['output_text'] ) ) {
 			$trimmed = trim( $body['output_text'] );
 			if ( '' !== $trimmed ) {
-				return $trimmed;
+				return sanitize_textarea_field( $trimmed );
 			}
 		}
 
@@ -132,15 +117,10 @@ class Ask_Adam_Lite_Model_Config {
 					if ( ! is_array( $content_block ) ) {
 						continue;
 					}
-					if (
-						isset( $content_block['type'] ) &&
-						'output_text' === $content_block['type'] &&
-						isset( $content_block['text'] ) &&
-						is_string( $content_block['text'] )
-					) {
+					if ( isset( $content_block['text'] ) && is_string( $content_block['text'] ) ) {
 						$trimmed = trim( $content_block['text'] );
 						if ( '' !== $trimmed ) {
-							return $trimmed;
+							return sanitize_textarea_field( $trimmed );
 						}
 					}
 				}
@@ -152,7 +132,7 @@ class Ask_Adam_Lite_Model_Config {
 			isset( $body['choices'][0]['message']['content'] ) &&
 			is_string( $body['choices'][0]['message']['content'] )
 		) {
-			return trim( $body['choices'][0]['message']['content'] );
+			return sanitize_textarea_field( trim( $body['choices'][0]['message']['content'] ) );
 		}
 
 		return '';
@@ -164,10 +144,10 @@ class Ask_Adam_Lite_Model_Config {
 	 * @return bool
 	 */
 	public static function detect_embedding_mismatch(): bool {
-		$active  = get_option( 'aalite_embedding_model', '' );
+		$active  = self::get_embedding_model();
 		$indexed = get_option( 'aalite_kb_indexed_embedding_model', '' );
 
-		if ( '' === $active || '' === $indexed ) {
+		if ( ! is_string( $indexed ) || '' === $indexed ) {
 			return false;
 		}
 

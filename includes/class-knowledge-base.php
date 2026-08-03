@@ -388,7 +388,7 @@ class Ask_Adam_Lite_KB {
         $inputs          = array_map( function( $r ) { return (string) $r['content']; }, $rows );
         $embedding_model = Ask_Adam_Lite_Model_Config::get_embedding_model();
 
-        $resp = wp_remote_post( Ask_Adam_Lite_Model_Config::ENDPOINT_EMBEDDINGS, [
+        $resp = wp_remote_post( Ask_Adam_Lite_Model_Config::get_openai_endpoint( 'embeddings' ), [
             'timeout' => 20,
             'headers' => [
                 'Authorization' => 'Bearer ' . $key,
@@ -450,7 +450,7 @@ class Ask_Adam_Lite_KB {
 
         if (!$key) return ['context'=>'','sources'=>[]];
 
-        $resp = wp_remote_post( Ask_Adam_Lite_Model_Config::ENDPOINT_EMBEDDINGS, [
+        $resp = wp_remote_post( Ask_Adam_Lite_Model_Config::get_openai_endpoint( 'embeddings' ), [
             'timeout' => 12,
             'headers' => [
                 'Authorization' => 'Bearer ' . $key,

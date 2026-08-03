@@ -19,6 +19,7 @@ class Ask_Adam_Lite_Plugin {
         require_once AALITE_DIR.'includes/class-knowledge-base.php';
 
         self::register_default_options();
+        self::maybe_migrate_indexed_embedding_model();
 
         // i18n (avoid load_plugin_textdomain; load MO manually)
         add_action('init', [$this, 'load_textdomain']);
@@ -51,37 +52,49 @@ class Ask_Adam_Lite_Plugin {
         add_option( 'aalite_embedding_model',  Ask_Adam_Lite_Model_Config::DEFAULT_EMBEDDING_MODEL );
     }
 
+    /**
+     * Records the legacy embedding model for indexes that predate the
+     * indexed-model option. This also runs after an update so existing sites
+     * receive an embedding mismatch warning when the active model changes.
+     */
+    private static function maybe_migrate_indexed_embedding_model() {
+        $indexed_model = get_option( 'aalite_kb_indexed_embedding_model', '' );
+        if ( '' !== trim( (string) $indexed_model ) ) {
+            return;
+        }
+
+        global $wpdb;
+        $table_name = esc_sql( $wpdb->prefix . 'aalite_kb_chunks' );
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $table_exists = $wpdb->get_var(
+            $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'aalite_kb_chunks' )
+        );
+        if ( $table_exists !== $wpdb->prefix . 'aalite_kb_chunks' ) {
+            return;
+        }
+        $chunk_count = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT COUNT(*) FROM `' . $table_name . '` WHERE embedding IS NOT NULL AND embedding <> %s LIMIT %d',
+                '',
+                1
+            )
+        );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+        if ( $chunk_count > 0 ) {
+            Ask_Adam_Lite_Model_Config::set_indexed_embedding_model(
+                Ask_Adam_Lite_Model_Config::DEFAULT_EMBEDDING_MODEL
+            );
+        }
+    }
+
     public static function activate() {
         require_once AALITE_DIR . 'includes/class-model-config.php';
         // Ensure KB class is available during activation
         require_once AALITE_DIR.'includes/class-knowledge-base.php';
         Ask_Adam_Lite_KB::maybe_install_db();
 
-        // Migration: backfill aalite_kb_indexed_embedding_model for sites that
-        // had the KB indexed before this option existed.
-        // If chunks exist in the DB but the option is empty, we know those
-        // chunks were built with the old hardcoded default.
-        $indexed_model = get_option( 'aalite_kb_indexed_embedding_model', '' );
-        if ( '' === trim( (string) $indexed_model ) ) {
-            global $wpdb;
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
-            $chunk_count = (int) $wpdb->get_var(
-                $wpdb->prepare(
-                    'SELECT COUNT(*) FROM `' . esc_sql( $wpdb->prefix . 'aalite_kb_chunks' ) . '`
-                     WHERE embedding IS NOT NULL AND embedding <> %s LIMIT %d',
-                    '',
-                    1
-                )
-            );
-            // phpcs:enable
-            if ( $chunk_count > 0 ) {
-                update_option(
-                    'aalite_kb_indexed_embedding_model',
-                    Ask_Adam_Lite_Model_Config::DEFAULT_EMBEDDING_MODEL
-                );
-            }
-        }
+        self::maybe_migrate_indexed_embedding_model();
     }
 
     /**

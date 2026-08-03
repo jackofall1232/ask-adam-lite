@@ -11,7 +11,6 @@ class Ask_Adam_Lite_Admin {
     public function __construct() {
         add_action('admin_menu', [$this, 'menu']);
         add_action('admin_init', [$this, 'maybe_save']);
-        add_action('admin_enqueue_scripts', [$this, 'admin_assets']);
     }
 
     public function menu() {
@@ -24,40 +23,6 @@ class Ask_Adam_Lite_Admin {
             'dashicons-format-chat',
             58
         );
-    }
-
-    /**
-     * Enqueue admin CSS/JS only on our admin page.
-     * (Reviewer-friendly: no inline <script>, uses enqueue API.)
-     */
-    public function admin_assets($hook) {
-        if ($hook !== 'toplevel_page_ask-adam-lite') {
-            return;
-        }
-
-        // CSS
-        $css_path = plugin_dir_path(dirname(__FILE__)) . 'assets/css/admin.css';
-        $css_url  = plugin_dir_url(dirname(__FILE__)) . 'assets/css/admin.css';
-        $css_ver  = file_exists($css_path) ? (string) filemtime($css_path) : '1.0.1';
-        wp_register_style('ask-adam-lite-admin', $css_url, [], $css_ver);
-        wp_enqueue_style('ask-adam-lite-admin');
-
-        // JS (optional, handles tab UI without inline <script>)
-        $js_path = plugin_dir_path(dirname(__FILE__)) . 'assets/js/admin.js';
-        $js_url  = plugin_dir_url(dirname(__FILE__)) . 'assets/js/admin.js';
-        $js_ver  = file_exists($js_path) ? (string) filemtime($js_path) : '1.0.1';
-
-        if (file_exists($js_path)) {
-            wp_register_script('ask-adam-lite-admin', $js_url, ['jquery'], $js_ver, true);
-        } else {
-            // Create a handle so inline can attach even if file is absent.
-            wp_register_script('ask-adam-lite-admin', '', ['jquery'], $js_ver, true);
-        }
-        wp_enqueue_script('ask-adam-lite-admin');
-
-        // Minimal inline JS as a normal string (no heredoc/nowdoc).
-        $inline = '(function(){document.addEventListener("click",function(e){var b=e.target.closest(".adam-tab");if(!b){return;}e.preventDefault();var wrap=document.querySelector(".wrap.adam-admin");if(!wrap){return;}wrap.querySelectorAll(".adam-tab").forEach(function(t){t.classList.remove("is-active");});b.classList.add("is-active");var k=b.getAttribute("data-tab");wrap.querySelectorAll(".adam-tabpanel").forEach(function(p){if(p.getAttribute("data-panel")===k){p.removeAttribute("hidden");}else{p.setAttribute("hidden","hidden");}});},{passive:true});})();';
-        wp_add_inline_script('ask-adam-lite-admin', $inline, 'after');
     }
 
     private function get_api_key() {
@@ -160,7 +125,7 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
         }
         foreach ($this->local_notices as $n) {
             printf(
-                '<div class="%s" style="margin-top:12px;"><p>%s</p></div>',
+                '<div class="%s aalite-admin-notice"><p>%s</p></div>',
                 esc_attr($n['type']),
                 esc_html($n['message'])
             );
@@ -251,14 +216,14 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
               <h3><?php esc_html_e('Lite vs Pro (at a glance)', 'ask-adam-lite'); ?></h3>
               <ul class="anna-list">
                 <li><strong><?php esc_html_e('Lite:', 'ask-adam-lite'); ?></strong>
-                  <?php esc_html_e('OpenAI (GPT-4o mini default, upgradeable), basic widget controls, single sitemap + priority URL, KB caps (≈50 pages / 300 chunks).', 'ask-adam-lite'); ?>
+                  <?php esc_html_e('OpenAI (GPT-5.6 Luna default), basic widget controls, single sitemap + priority URL, KB caps (≈50 pages / 300 chunks).', 'ask-adam-lite'); ?>
                 </li>
                 <li><strong><?php esc_html_e('Pro:', 'ask-adam-lite'); ?></strong>
                   <?php esc_html_e('Multiple providers, profiles, theme controls, optional web search, larger KB limits, Image analysis in the shortcode,  and no Lite watermark.', 'ask-adam-lite'); ?>
                 </li>
               </ul>
 
-              <p class="anna-muted" style="margin-top:.5rem;">
+              <p class="anna-muted aalite-admin-spaced-small">
                 <a href="<?php echo esc_url(self::PRO_URL); ?>" target="_blank" rel="noopener"><?php esc_html_e('Learn more about Ask Adam Pro', 'ask-adam-lite'); ?></a>
               </p>
             </div>
@@ -270,7 +235,7 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
               <?php wp_nonce_field('aalite_save'); ?>
               <input type="hidden" name="_aalite_flag" value="1">
               <h2><?php esc_html_e('Assistant (OpenAI only)', 'ask-adam-lite'); ?></h2>
-              <p class="anna-hint"><?php esc_html_e('Lite defaults to GPT-4o mini. GPT-5 models are supported — change the model via the aalite_reasoning_model option.', 'ask-adam-lite'); ?></p>
+              <p class="anna-hint"><?php esc_html_e('Lite uses GPT-5.6 Luna through the OpenAI Responses API. Advanced model options remain available through the existing model settings.', 'ask-adam-lite'); ?></p>
 
               <label class="anna-label"><?php esc_html_e('OpenAI API Key', 'ask-adam-lite'); ?></label>
               <input class="anna-input" type="password" name="openai" value="<?php echo esc_attr($this->get_api_key()); ?>" placeholder="sk-...">
@@ -320,7 +285,7 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
           <!-- KB -->
           <section class="adam-tabpanel" data-panel="kb" hidden>
             <div class="anna-card">
-              <h2 style="margin:0 0 8px;"><?php esc_html_e('Knowledge Base — Quick Guide', 'ask-adam-lite'); ?></h2>
+              <h2 class="aalite-admin-heading-compact"><?php esc_html_e('Knowledge Base — Quick Guide', 'ask-adam-lite'); ?></h2>
               <ol class="anna-list">
                 <li><strong><?php esc_html_e('Enter URLs:', 'ask-adam-lite'); ?></strong> <?php esc_html_e('Add your Sitemap URL and (optionally) one Priority URL.', 'ask-adam-lite'); ?></li>
                 <li><strong><?php esc_html_e('Save:', 'ask-adam-lite'); ?></strong> <?php esc_html_e('Click “Save KB” to store your settings.', 'ask-adam-lite'); ?></li>
@@ -328,7 +293,7 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
                 <li><strong><?php esc_html_e('Embed:', 'ask-adam-lite'); ?></strong> <?php esc_html_e('Click “Embed” to generate vector embeddings so the assistant can use your content.', 'ask-adam-lite'); ?></li>
                 <li><strong><?php esc_html_e('Maintenance:', 'ask-adam-lite'); ?></strong> <?php esc_html_e('Use “Repair Tables” if needed, or “Purge” to clear all indexed data.', 'ask-adam-lite'); ?></li>
               </ol>
-              <p class="anna-hint" style="margin-top:.25rem;"><?php esc_html_e('Tip: Re-run Crawl and Embed after major site changes.', 'ask-adam-lite'); ?></p>
+              <p class="anna-hint aalite-admin-spaced-tiny"><?php esc_html_e('Tip: Re-run Crawl and Embed after major site changes.', 'ask-adam-lite'); ?></p>
             </div>
 
             <form method="post" class="anna-card">
@@ -365,7 +330,7 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
                           esc_html__('API keys prioritized from wp-config.php (or encrypted DB)', 'ask-adam-lite'),
                           esc_html__('Automatic retries and fallback resilience', 'ask-adam-lite'),
                       ],
-                      '<p class="anna-muted" style="margin-top:.75rem;">' .
+                      '<p class="anna-muted aalite-admin-spaced-medium">' .
                       esc_html__('Just need a simple widget without provider controls?', 'ask-adam-lite') . ' ' .
                       '<a href="' . esc_url(self::ANNA_URL) . '" target="_blank" rel="noopener">' . esc_html__('See Ask Anna', 'ask-adam-lite') . '</a>.</p>'
                   )
@@ -418,7 +383,7 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
                           esc_html__('Premium polish with smooth SVG accents and scrolling', 'ask-adam-lite'),
                           esc_html__('Brand-safe layout: core shapes and spacing kept consistent', 'ask-adam-lite'),
                       ],
-                      '<p class="anna-muted" style="margin-top:.75rem;">' .
+                      '<p class="anna-muted aalite-admin-spaced-medium">' .
                       esc_html__('Prefer a lightweight widget?', 'ask-adam-lite') . ' ' .
                       '<a href="' . esc_url(self::ANNA_URL) . '" target="_blank" rel="noopener">' . esc_html__('Learn about Ask Anna', 'ask-adam-lite') . '</a>.</p>'
                   )
@@ -454,7 +419,7 @@ if (isset($_POST['save_widget'])) { // phpcs:ignore WordPress.Security.NonceVeri
             <div class="anna-footnote"><?php echo wp_kses_post($footnote_html); ?></div>
           <?php endif; ?>
 
-          <div class="anna-actions" style="margin-top:1rem;">
+          <div class="anna-actions aalite-admin-actions-spaced">
             <a class="anna-btn accent" href="<?php echo esc_url(self::PRO_URL); ?>" target="_blank" rel="noopener">
               <?php esc_html_e('Get Pro', 'ask-adam-lite'); ?>
             </a>

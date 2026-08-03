@@ -83,51 +83,26 @@ class Ask_Adam_Lite_Logic {
 		$model    = $has_image
 			? Ask_Adam_Lite_Model_Config::get_vision_model()
 			: Ask_Adam_Lite_Model_Config::get_reasoning_model();
-		$endpoint = Ask_Adam_Lite_Model_Config::get_openai_endpoint( $model );
+		$endpoint = Ask_Adam_Lite_Model_Config::get_openai_endpoint();
 
-		// Build request body based on API type
-		if ( Ask_Adam_Lite_Model_Config::use_responses_api( $model ) ) {
-			if ( $has_image ) {
-				$user_blocks = [
-					[ 'type' => 'input_text', 'text' => $user_content ],
-					[ 'type' => 'input_image', 'image_url' => $image ],
-				];
-			} else {
-				$user_blocks = $user_content;
-			}
-			$request_body = [
-				'model'             => $model,
-				'input'             => [
-					[ 'role' => 'system', 'content' => $system_content ],
-					[ 'role' => 'user',   'content' => $user_blocks ],
-				],
-				'max_output_tokens' => self::MAX_TOKENS,
-				'reasoning'         => [ 'effort' => 'low' ],
+		if ( $has_image ) {
+			$user_blocks = [
+				[ 'type' => 'input_text', 'text' => $user_content ],
+				[ 'type' => 'input_image', 'image_url' => $image ],
 			];
 		} else {
-			if ( $has_image ) {
-				$user_blocks = [
-					[ 'type' => 'text', 'text' => $user_content ],
-					[ 'type' => 'image_url', 'image_url' => [ 'url' => $image ] ],
-				];
-			} else {
-				$user_blocks = $user_content;
-			}
-			$request_body = [
-				'model'    => $model,
-				'messages' => [
-					[ 'role' => 'system', 'content' => $system_content ],
-					[ 'role' => 'user',   'content' => $user_blocks ],
-				],
-			];
-			if ( Ask_Adam_Lite_Model_Config::is_reasoning_model( $model ) ) {
-				// o1/o3 models reject temperature and use max_completion_tokens.
-				$request_body['max_completion_tokens'] = self::MAX_TOKENS;
-			} else {
-				$request_body['temperature'] = 0.7;
-				$request_body['max_tokens']  = self::MAX_TOKENS;
-			}
+			$user_blocks = $user_content;
 		}
+
+		$request_body = [
+			'model'             => $model,
+			'instructions'      => $system_content,
+			'input'             => [
+				[ 'role' => 'user', 'content' => $user_blocks ],
+			],
+			'max_output_tokens' => self::MAX_TOKENS,
+			'reasoning'         => [ 'effort' => 'low' ],
+		];
 
 		$args = [
 			'timeout'     => self::TIMEOUT,

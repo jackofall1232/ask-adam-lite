@@ -243,6 +243,12 @@
 .adam-admin .anna-hint { color:var(--aa-muted); font-size:12px; margin-top:6px; line-height:1.4; }
 .adam-admin .anna-muted { color:var(--aa-muted); font-size:12px; }
 .adam-admin .anna-kb-stats { font-size:13px; color:var(--aa-text); opacity:.8; font-weight:500; }
+.adam-admin .aalite-admin-notice { margin-top: 12px; }
+.adam-admin .aalite-admin-spaced-tiny { margin-top: .25rem; }
+.adam-admin .aalite-admin-spaced-small { margin-top: .5rem; }
+.adam-admin .aalite-admin-spaced-medium { margin-top: .75rem; }
+.adam-admin .aalite-admin-heading-compact { margin: 0 0 8px; }
+.adam-admin .aalite-admin-actions-spaced { margin-top: 1rem; }
 
 /* Loading shimmer for inputs */
 .adam-admin .anna-input.is-loading,

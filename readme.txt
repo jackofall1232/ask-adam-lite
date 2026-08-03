@@ -91,16 +91,12 @@ The plugin is compatible with WordPress privacy guidelines and GDPR when used re
   as the single source of truth for all model identifiers, API endpoints,
   and response normalization. No hardcoded model strings remain in
   business logic.
-* GPT-5 Support: Full OpenAI Responses API support for GPT-5 and later
-  models. Endpoint routing is automatic based on model prefix. Legacy
-  Chat Completions API continues to work for GPT-4o and earlier.
+* GPT-5.6 Luna: OpenAI requests use the Responses API with GPT-5.6 Luna
+  as the default reasoning, vision, and intent model.
 * Vision: Image upload support added to both the floating widget and the
   [ask_adam_lite] shortcode embed. Accepts JPEG, PNG, GIF, and WebP up
   to 5MB. Images are transmitted directly to OpenAI — never written to
   disk or stored in the WordPress database.
-* Reasoning Models: o1 and o3 models now correctly use
-  max_completion_tokens and omit unsupported parameters (temperature,
-  max_tokens) that cause API 400 errors on those model families.
 * Knowledge Base: Embedding model is now configurable via WordPress
   options. Admin warning displayed when the active embedding model
   differs from the model used during the last index build. Sites
