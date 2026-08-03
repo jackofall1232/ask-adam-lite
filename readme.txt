@@ -4,7 +4,7 @@ Tags: ai, chatbot, assistant, openai
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.0.1
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -86,7 +86,7 @@ The plugin is compatible with WordPress privacy guidelines and GDPR when used re
 
 == Changelog ==
 
-= 2.0.0 =
+= 2.1.0 =
 * Architecture: Introduced centralized Ask_Adam_Lite_Model_Config class
   as the single source of truth for all model identifiers, API endpoints,
   and response normalization. No hardcoded model strings remain in
@@ -166,12 +166,8 @@ The plugin is compatible with WordPress privacy guidelines and GDPR when used re
 
 == Upgrade Notice ==
 
-= 2.0.0 =
-IMPORTANT: If you use the Knowledge Base feature, you must re-run Crawl
-and Embed from the Knowledge Base tab after upgrading. The embedding
-architecture has changed and existing indexes need to be rebuilt.
-This release also adds image/vision support, GPT-5 compatibility, and
-fixes several Plugin Check compliance issues. Recommended for all users.
+= 2.1.0 =
+If you use the Knowledge Base, rebuild it after changing the embedding model.
 
 = 1.0.5 =
 Tested for compatibility with WordPress 6.9. Recommended update for all users.

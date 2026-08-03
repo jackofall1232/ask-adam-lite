@@ -65,7 +65,7 @@ class Ask_Adam_Lite_Plugin {
 
         global $wpdb;
         $table_name = esc_sql( $wpdb->prefix . 'aalite_kb_chunks' );
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $table_exists = $wpdb->get_var(
             $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'aalite_kb_chunks' )
         );
@@ -79,7 +79,7 @@ class Ask_Adam_Lite_Plugin {
                 1
             )
         );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
         if ( $chunk_count > 0 ) {
             Ask_Adam_Lite_Model_Config::set_indexed_embedding_model(
